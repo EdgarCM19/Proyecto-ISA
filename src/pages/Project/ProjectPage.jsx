@@ -2,22 +2,116 @@ import React from "react";
 import { useState } from "react";
 
 import { useParams } from "react-router-dom";
-import { ColaboratorsPanel, DeleteIcon, EditIcon, ExpandIcon, ExpandPanelButton, HeaderBtn, HeaderContent, HeaderTitle, ProjectCardsContainer, ProjectContentPanel, ProjectPageContainer, Tab, TabsContainer } from "./ProjectPageElements";
+import { 
+    ColabContent,
+    ColabName,
+    ColaboratorsPanel,
+    ColabsList,
+    ColabsTitle,
+    DeleteIcon,
+    DeleteIconC,
+    EditIcon,
+    ExpandIcon,
+    ExpandPanelButton,
+    HeaderBtn,
+    HeaderContent,
+    HeaderTitle,
+    NewColabBtn,
+    NewUserIcon,
+    ProjectCardsContainer,
+    ProjectContentPanel,
+    ProjectPageContainer,
+} from "./ProjectPageElements";
+
+import Modal from "../../components/Modal/Modal";
+import {
+    ContenedorBotones,
+    Boton,
+    Boton2,
+    Boton3,
+    Contenido
+} from "../../components/Modal/ModalContenidoElements";
+import InputField from "../../components/InputField/InputField";
+
+const fakeDataColabs = [
+    { id: 0, name: 'Colaborador 1'},
+    { id: 1, name: 'Colaborador 2'},
+    { id: 2, name: 'Colaborador 3'},
+    { id: 2, name: 'Colaborador 3'},
+    { id: 2, name: 'Colaborador 3'},
+    { id: 2, name: 'Colaborador 3'},
+    { id: 2, name: 'Colaborador 3'},
+    { id: 2, name: 'Colaborador 4'},
+    { id: 2, name: 'Colaborador 4'},
+    { id: 2, name: 'Colaborador 4'},
+    { id: 2, name: 'Colaborador 4'},
+    { id: 2, name: 'Colaborador 4'},
+];
 
 const ProjectPage = () => {
-    
+
     const { id } = useParams();
 
+    const [data, setData] = useState(fakeDataColabs);
+    const deleteConfirmText = `borrar-proyecto`; //Se obtiene el nombre del proyecto de la base de datos y se pone como "borrar-[nombre]""
+
     const [colabPanelExpanded, setColabPanelExpanded] = useState(false);
+
+    // Modal states
+    const [editModalState, setEditModalState] = useState(false);
+    const [deleteModalState, setDeleteModalState] = useState(false);
+    const [confirmDeleteModalState, setConfirmDeleteModalState] = useState(false);
+
+    const openEditModal = () => setEditModalState(true);
+    const closeEditModal = () => setEditModalState(false);
+
+    const openDeleteModal = () => setDeleteModalState(true);
+    const closeDeleteModal = () => setDeleteModalState(false);
+
+    const openconfirmDeleteModal = () => setConfirmDeleteModalState(true);
+    const closeConfirmDeleteModal = () => setConfirmDeleteModalState(false);
+    //Inputs states
+    const [projectName, setProjectName] = useState('');
+    const [deleteProjectName, setDeleteProjectName] = useState('');
+
+    const handleProjectName = (name) => setProjectName(name);
+    const handleDeleteProjectName = (name) => setDeleteProjectName(name);
+
+    // const addColab = (id, name) => {
+    //     setData([
+    //         ...data,
+    //         { id: id, name: name}
+    //     ]);
+    // }
+
+    // const deleteColab = (id) => {
+    //     setData(data.filter(e =>  e.id != id));
+    // }
+
+    const editProject = () => {
+        setEditModalState(false);
+        const newProjectName = projectName;
+        //Hacer el update a la base de datos
+
+    }
+
+    const deleteProject = () => {
+        setConfirmDeleteModalState(false);
+        //Se borra de la base de datos
+    }
 
     const handleColabPanel = () => setColabPanelExpanded(!colabPanelExpanded);
 
     return (
         <ProjectPageContainer>
             <HeaderContent>
-                <HeaderTitle>[Proyecto]</HeaderTitle>
-                <HeaderBtn className="edit_btn"><EditIcon className="edit_icon"/></HeaderBtn>
-                <HeaderBtn className="delete_btn"><DeleteIcon className="delete_icon"/></HeaderBtn>
+                <HeaderTitle className="header_title">[Proyecto]</HeaderTitle>
+                <HeaderBtn onClick={openEditModal} className="edit_btn">
+                    <EditIcon className="edit_icon"/>
+                </HeaderBtn>
+                <HeaderBtn onClick={openDeleteModal} className="delete_btn">
+                    <DeleteIcon className="delete_icon"/>
+                </HeaderBtn>
             </HeaderContent>
             <ProjectContentPanel>
                 <ProjectCardsContainer>
@@ -28,9 +122,105 @@ const ProjectPage = () => {
                     </TabsContainer> */}
                 </ProjectCardsContainer>
                 <ColaboratorsPanel expand={colabPanelExpanded}>
-                    <ExpandPanelButton onClick={handleColabPanel}><ExpandIcon expand={colabPanelExpanded}/></ExpandPanelButton>
+                    <ExpandPanelButton expand={colabPanelExpanded} onClick={handleColabPanel}>
+                        <ExpandIcon expand={colabPanelExpanded}/>
+                    </ExpandPanelButton>
+                    <ColabsTitle>Colaboradores</ColabsTitle>
+                    {/* Estraer colab a componente */}
+                    <ColabsList>
+                    { data.map( e => 
+                        <ColabContent>
+                            <ColabName className="c_name">{e.name}</ColabName>
+                            <DeleteIconC className="delete_iconC"/>
+                        </ColabContent>
+                        ) }
+                    </ColabsList>
+                    <NewColabBtn>Agregar<NewUserIcon /></NewColabBtn>
                 </ColaboratorsPanel>
             </ProjectContentPanel>
+
+
+            {/* Modals */}
+            {/* Modal edit */}
+            <Modal
+                estado={editModalState}
+                cambiarEstado={setEditModalState}
+                titulo="Titulo"
+                mostrarHeader={false}
+                mostrarOverlay={true}
+                posicionModal={'center'}
+                padding={'20px'}
+            >
+                <Contenido>
+                    <msg>Ingrese el nuevo nombre</msg>
+                    <InputField 
+                        label="Nuevo nombre del Proyecto"
+                        placeholder="Nuevo nombre"
+                        inputWidth="90%"
+                        password={false}
+                        value={projectName}
+                        onChange={handleProjectName}
+                    />
+                    <ContenedorBotones>
+                        <Boton2 onClick={closeEditModal}>Cancelar</Boton2>
+                        <Boton onClick={() => editProject()}>Aceptar</Boton>
+                    </ContenedorBotones>
+                </Contenido>
+            </Modal>
+
+            {/* Modal delete */}
+            <Modal
+                estado={deleteModalState}
+                cambiarEstado={setDeleteModalState}
+                titulo="Titulo"
+                mostrarHeader={false}
+                mostrarOverlay={true}
+                posicionModal={'center'}
+                padding={'20px'}
+            >
+                <Contenido>
+                    <msg>Ingrese "borrar-[nombreProyecto]" para eliminar</msg>
+                    <InputField 
+                        label=""
+                        placeholder= "borrar-[nombreProyecto]"
+                        inputWidth="90%"
+                        password={false}
+                        value={deleteProjectName}
+                        onChange={handleDeleteProjectName}
+                    />
+                    <ContenedorBotones>
+                        <Boton2 onClick={closeDeleteModal}>Cancelar</Boton2>
+                        <Boton 
+                            disabled={ !(deleteConfirmText === deleteProjectName) }
+                            onClick={() => {
+                                    closeDeleteModal();
+                                    openconfirmDeleteModal();}
+                        }>Eliminar</Boton>
+                    </ContenedorBotones>
+                </Contenido>
+            </Modal>
+
+            <Modal
+                estado={confirmDeleteModalState}
+                cambiarEstado={setConfirmDeleteModalState}
+                titulo="Titulo"
+                mostrarHeader={false}
+                mostrarOverlay={true}
+                posicionModal={'center'}
+                padding={'20px'}
+            >
+                <Contenido>
+                    <msg>¿Esta seguro que desea eliminar [Proyecto]?
+                        <br></br>Esta accion es irreversible.
+                    </msg>
+                    <ContenedorBotones>
+                        <Boton3 onClick={closeConfirmDeleteModal}>Eliminar</Boton3>
+                        <Boton onClick={deleteProject}>Cancelar</Boton>
+                    </ContenedorBotones>
+                </Contenido>
+            </Modal>
+
+
         </ProjectPageContainer>
     )
 }

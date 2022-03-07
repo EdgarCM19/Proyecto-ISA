@@ -92,6 +92,14 @@ export const ProjectsSection = styled.div`
     margin-top: 2em;
 `;
 
+export const NoProjetsContainer = styled.div`
+    width: 100%;
+    display: flex;
+    justify-content: start;
+    align-items: center;
+    flex-direction: column;
+`
+
 export const AuxText = styled.h3`
     color: var(--secondary-color);
     font-family: 'Source Code Pro', sans-serif;

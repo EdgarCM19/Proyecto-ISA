@@ -7,6 +7,7 @@ import {
     ButtonContainer,
     FolderIcon,
     NoProjectsImg,
+    NoProjetsContainer,
     ProjectPageHeader,
     ProjectPageHeaderTextContainer,
     ProjectsContainer,
@@ -17,6 +18,9 @@ import {
     UserIcon,
     UserMenu
 } from "./ProjectsPageElements";
+import Modal from "../../components/Modal/Modal";
+import InputField from "../../components/InputField/InputField";
+import {ContenedorBotones, Boton, Boton2, Contenido} from "../../components/Modal/ModalContenidoElements";
 
 const fakeData = [
     { id: 0, name: 'Projecto 1'},
@@ -29,8 +33,16 @@ const fakeData = [
 
 const ProjectsPage = () => {
 
-    const [data,setData] = useState(fakeData);
+    const [data, setData] = useState(fakeData);
     const [isMenuShow, setMenuShow] = useState(false);
+    const [projectName, setProjectName] = useState('');
+    const [newProjectModalShowing, setNewProjectModalState] = useState(false);
+
+    const toggleNewProjectModal = () => {
+        setNewProjectModalState(!newProjectModalShowing);
+    }
+
+    const handleNewProjectNameInput = (name) => setProjectName(name); 
 
     const history = useHistory();
 
@@ -39,6 +51,7 @@ const ProjectsPage = () => {
             ...prevData,
             { id: projectId, name: projectName}
         ]);
+        toggleNewProjectModal();
     }
 
     const loggedOut = () => {
@@ -46,7 +59,6 @@ const ProjectsPage = () => {
     }
 
     const toggleMenu = () => {
-        console.log('Que pasa');
         setMenuShow(!isMenuShow);
     }
 
@@ -66,14 +78,14 @@ const ProjectsPage = () => {
                 ) }
             </ProjectPageHeader>
             <ButtonContainer>
-                <Button mr="5em">Nuevo proyecto<FolderIcon/></Button>
+                <Button onClick={toggleNewProjectModal} mr="5em">Nuevo proyecto<FolderIcon/></Button>
             </ButtonContainer>
             <ProjectsSection>
                 { fakeData.length === 0 ? (
-                <>
+                <NoProjetsContainer>
                     <AuxText>Sin proyectos</AuxText>
                     <NoProjectsImg />
-                </> 
+                </NoProjetsContainer> 
                 ) : (
                 // Projectos
                 <ProjectsContainer>
@@ -81,12 +93,41 @@ const ProjectsPage = () => {
                         <ProjectFolder
                             id={e.id}
                             projectName={e.name}
+                            // onClick={ (e) => openProject(e.id) }
                         />
                     )}
                 </ProjectsContainer> 
                 )}
 
             </ProjectsSection>
+
+        {/* Modals */}
+
+        <Modal
+            estado={newProjectModalShowing}
+            cambiarEstado={setNewProjectModalState}
+            titulo="Titulo"
+            mostrarHeader={false}
+            mostrarOverlay={true}
+            posicionModal={'center'}
+            padding={'20px'}
+        >
+            <Contenido>
+                <msg>Ingrese el nombre del proyecto </msg>
+                <InputField 
+                    label="Nombre del Proyecto"
+                    placeholder="Nombre del Proyecto"
+                    inputWidth="90%"
+                    password={false}
+                    value={projectName}
+                    onChange={handleNewProjectNameInput}
+                />
+                <ContenedorBotones>
+                    <Boton2 onClick={toggleNewProjectModal}>Cancelar</Boton2>
+                    <Boton onClick={() => addNewProject(0, projectName)}>Crear</Boton>
+                </ContenedorBotones>
+            </Contenido>
+        </Modal>
 
         </ProjectsPageContent>
     )
