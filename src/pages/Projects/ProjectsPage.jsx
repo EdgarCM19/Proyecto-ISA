@@ -27,13 +27,6 @@ import InputField from "../../components/InputField/InputField";
 import {ContenedorBotones, Boton, Boton2, Contenido} from "../../components/Modal/ModalContenidoElements";
 
 
-const fakeData = [
-    { id: 0, name: 'Projecto 1'},
-    { id: 2, name: 'Projecto 2'},
-    { id: 3, name: 'Projecto 3'},
-    { id: 4, name: 'Projecto 4'},
-];
-
 // const fakeData = [];
 
 const ProjectsPage = () => {
@@ -51,7 +44,8 @@ const ProjectsPage = () => {
         const getData = async () =>{
             const data = await getDocs(collection(db, 'projects'))
             console.log(data);
-            data.forEach(element=>{ setData( (prevData)=>[...prevData, {id:element.data().id, name:element.data().name}])})
+            data.forEach(element=>{ console.log(element);
+                 setData( (prevData)=>[...prevData, {id:element.data().id, name:element.data().name, key:element.id}])})
         }
         getData()
         
@@ -105,7 +99,7 @@ const ProjectsPage = () => {
                 <Button onClick={toggleNewProjectModal} mr="5em">Nuevo proyecto<FolderIcon/></Button>
             </ButtonContainer>
             <ProjectsSection>
-                { fakeData.length === 0 ? (
+                { data.length === 0 ? (
                 <NoProjetsContainer>
                     <AuxText>Sin proyectos</AuxText>
                     <NoProjectsImg />
@@ -115,8 +109,7 @@ const ProjectsPage = () => {
                 <ProjectsContainer>
                     { data.map(e => 
                         <ProjectFolder
-                            id={e.id}
-                            projectName={e.name}
+                            props={e}
                             // onClick={ (e) => openProject(e.id) }
                         />
                     )}

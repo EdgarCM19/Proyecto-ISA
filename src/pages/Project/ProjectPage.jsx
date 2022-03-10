@@ -1,5 +1,6 @@
 import React from "react";
 import { useState } from "react";
+import { useLocation } from "react-router-dom";
 
 import { useParams } from "react-router-dom";
 import { 
@@ -32,27 +33,20 @@ import {
     Contenido
 } from "../../components/Modal/ModalContenidoElements";
 import InputField from "../../components/InputField/InputField";
+import { doc, addDoc, collection, getDocs } from "firebase/firestore";
+import db from '../../firebaseConfig'
 
-const fakeDataColabs = [
-    { id: 0, name: 'Colaborador 1'},
-    { id: 1, name: 'Colaborador 2'},
-    { id: 2, name: 'Colaborador 3'},
-    { id: 2, name: 'Colaborador 3'},
-    { id: 2, name: 'Colaborador 3'},
-    { id: 2, name: 'Colaborador 3'},
-    { id: 2, name: 'Colaborador 3'},
-    { id: 2, name: 'Colaborador 4'},
-    { id: 2, name: 'Colaborador 4'},
-    { id: 2, name: 'Colaborador 4'},
-    { id: 2, name: 'Colaborador 4'},
-    { id: 2, name: 'Colaborador 4'},
-];
+let colaborators = {
+    name:"",
+    id:""
+}
 
-const ProjectPage = (db) => {
+const ProjectPage = () => {
 
     const { id } = useParams();
+    const location  = useLocation();
 
-    const [data, setData] = useState(fakeDataColabs);
+    const [data, setData] = useState([]);
     const deleteConfirmText = `borrar-proyecto`; //Se obtiene el nombre del proyecto de la base de datos y se pone como "borrar-[nombre]""
 
     const [colabPanelExpanded, setColabPanelExpanded] = useState(false);
@@ -76,6 +70,7 @@ const ProjectPage = (db) => {
 
     const handleProjectName = (name) => setProjectName(name);
     const handleDeleteProjectName = (name) => setDeleteProjectName(name);
+    const doc_name = location.state.key;
 
     // const addColab = (id, name) => {
     //     setData([
@@ -87,6 +82,30 @@ const ProjectPage = (db) => {
     // const deleteColab = (id) => {
     //     setData(data.filter(e =>  e.id != id));
     // }
+    React.useEffect(() => {
+        const getColaborators = async () =>{
+            
+
+            const subColRef = collection(db, "projects", doc_name, "colaborators");
+            // odd number of path segments to get a CollectionReference
+
+            // equivalent to:
+            // .collection("collection_name/doc_name/subcollection_name") in v8
+
+            // use getDocs() instead of getDoc() to fetch the collection
+
+            const qSnap =await getDocs(subColRef)
+
+            qSnap.docs.map(d => setData(prev => [...prev,{name:d.data().name, key:d.id}]))
+
+
+            // const subColRef = collection(db, "proyects",{doc_name} ,'colaborators');
+            // const qSnap = getDocs(subColRef)
+            // console.log(qSnap.docs.map(d =>{console.log(d)} ))
+        }
+        console.log("colab")
+        getColaborators()
+    }, [])
 
     const editProject = () => {
         setEditModalState(false);
@@ -105,7 +124,7 @@ const ProjectPage = (db) => {
     return (
         <ProjectPageContainer>
             <HeaderContent>
-                <HeaderTitle className="header_title">[Proyecto]</HeaderTitle>
+                <HeaderTitle className="header_title">[{location.state.name}]</HeaderTitle>
                 <HeaderBtn onClick={openEditModal} className="edit_btn">
                     <EditIcon className="edit_icon"/>
                 </HeaderBtn>
@@ -130,7 +149,7 @@ const ProjectPage = (db) => {
                     <ColabsList>
                     { data.map( e => 
                         <ColabContent>
-                            <ColabName className="c_name">{e.name}</ColabName>
+                            <ColabName className="c_name">{e.name} </ColabName>
                             <DeleteIconC className="delete_iconC"/>
                         </ColabContent>
                         ) }

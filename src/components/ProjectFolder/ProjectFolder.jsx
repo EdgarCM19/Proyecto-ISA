@@ -9,23 +9,23 @@ import {
     ProjectContent 
 } from "./ProjectFolderElements";
 
-const ProjectFolder = ( { projectName, id }) => {
+const ProjectFolder = ( { props }) => {
 
     const history = useHistory();
 
     const openProject = () => {
-        history.replace(`/projects/${id}`);
+        history.replace(`/projects/${props.id}`, props);
     }
-
+    console.log(props)
     return (
-        <ProjectContent onClick={ () => console.log(projectName)}>
+        <ProjectContent onClick={ () => console.log(props.name)}>
             <Folder onClick={openProject}>
                 <FolderBack>
                     <Paper />
                     <FolderFront />
                 </FolderBack>
             </Folder>
-            <FolderName>{projectName}</FolderName>
+            <FolderName>{props.name}</FolderName>
         </ProjectContent>
     );
 }
