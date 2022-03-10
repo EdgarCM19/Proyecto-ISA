@@ -61,6 +61,8 @@ const ProjectPage = () => {
     const [editModalState, setEditModalState] = useState(false);
     const [deleteModalState, setDeleteModalState] = useState(false);
     const [confirmDeleteModalState, setConfirmDeleteModalState] = useState(false);
+    const [deleteColaborateModal, setDeleteColaborateModal] = useState(false);
+    const [newColaborateModal, setNewColaborateModal] = useState(false);
 
     const openEditModal = () => setEditModalState(true);
     const closeEditModal = () => setEditModalState(false);
@@ -70,12 +72,17 @@ const ProjectPage = () => {
 
     const openconfirmDeleteModal = () => setConfirmDeleteModalState(true);
     const closeConfirmDeleteModal = () => setConfirmDeleteModalState(false);
+
+    const openDeleteColab = () => setDeleteColaborateModal(true);
+    const openNewColab = () => setNewColaborateModal(true);
     //Inputs states
     const [projectName, setProjectName] = useState('');
     const [deleteProjectName, setDeleteProjectName] = useState('');
+    const [colabMail, setColabMail] = useState('');
 
     const handleProjectName = (name) => setProjectName(name);
     const handleDeleteProjectName = (name) => setDeleteProjectName(name);
+    const handleColabMail = (mail) =>  setColabMail(mail);
 
     // const addColab = (id, name) => {
     //     setData([
@@ -98,6 +105,16 @@ const ProjectPage = () => {
     const deleteProject = () => {
         setConfirmDeleteModalState(false);
         //Se borra de la base de datos
+    }
+
+    const addColab = () => {
+        setNewColaborateModal(false);
+        //Se agrega el colaborador
+    }
+
+    const deleteColab = () => {
+        setDeleteColaborateModal(false);
+        //Se elimina el colaborador
     }
 
     const handleColabPanel = () => setColabPanelExpanded(!colabPanelExpanded);
@@ -131,11 +148,11 @@ const ProjectPage = () => {
                     { data.map( e => 
                         <ColabContent>
                             <ColabName className="c_name">{e.name}</ColabName>
-                            <DeleteIconC className="delete_iconC"/>
+                            <DeleteIconC onClick={openDeleteColab} className="delete_iconC"/>
                         </ColabContent>
                         ) }
                     </ColabsList>
-                    <NewColabBtn>Agregar<NewUserIcon /></NewColabBtn>
+                    <NewColabBtn onClick={openNewColab}>Agregar<NewUserIcon /></NewColabBtn>
                 </ColaboratorsPanel>
             </ProjectContentPanel>
 
@@ -200,6 +217,7 @@ const ProjectPage = () => {
                 </Contenido>
             </Modal>
 
+            {/*  Modal confirm delete*/}
             <Modal
                 estado={confirmDeleteModalState}
                 cambiarEstado={setConfirmDeleteModalState}
@@ -216,6 +234,54 @@ const ProjectPage = () => {
                     <ContenedorBotones>
                         <Boton3 onClick={closeConfirmDeleteModal}>Eliminar</Boton3>
                         <Boton onClick={deleteProject}>Cancelar</Boton>
+                    </ContenedorBotones>
+                </Contenido>
+            </Modal>
+
+            {/* Modal delete colab */}
+            <Modal
+                estado={deleteColaborateModal}
+                cambiarEstado={setDeleteColaborateModal}
+                titulo="Titulo"
+                mostrarHeader={false}
+                mostrarOverlay={true}
+                posicionModal={'center'}
+                padding={'20px'}
+            >
+                <Contenido>
+                    <msg>¿Esta seguro que desea eliminar al colaborador [Nombre]?
+                        <br></br>Esta accion es Permanente.
+                    </msg>
+                    <ContenedorBotones>
+                        <Boton3 onClick={() => setDeleteColaborateModal(!deleteColaborateModal)}>Eliminar</Boton3>
+                        <Boton onClick={() => setDeleteColaborateModal(false)}>Cancelar</Boton>
+                    </ContenedorBotones>
+                </Contenido>
+            </Modal>
+
+            {/* Modal new colab */}
+            <Modal
+                estado={newColaborateModal}
+                cambiarEstado={setNewColaborateModal}
+                titulo="Titulo"
+                mostrarHeader={false}
+                mostrarOverlay={true}
+                posicionModal={'center'}
+                padding={'20px'}
+            >
+                <Contenido>
+                    <msg>Ingrese el correo del colaborador <br></br>que desea dar de alta</msg>
+                    <InputField 
+                        label="Correo electronico"
+                        placeholder="Correo electronico"
+                        inputWidth="90%"
+                        password={false}
+                        value={colabMail}
+                        onChange={handleColabMail}
+                    />
+                    <ContenedorBotones>
+                        <Boton2 onClick={() => setNewColaborateModal(false)}>Cancelar</Boton2>
+                        <Boton onClick={() => setNewColaborateModal(!newColaborateModal)}>Aceptar</Boton>
                     </ContenedorBotones>
                 </Contenido>
             </Modal>
