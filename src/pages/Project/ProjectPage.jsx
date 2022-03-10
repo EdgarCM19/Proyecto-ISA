@@ -1,6 +1,7 @@
 import React from "react";
 import { useState } from "react";
 import { useLocation } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 
 import { useParams } from "react-router-dom";
 import { 
@@ -33,7 +34,7 @@ import {
     Contenido
 } from "../../components/Modal/ModalContenidoElements";
 import InputField from "../../components/InputField/InputField";
-import { doc, addDoc, collection, getDocs } from "firebase/firestore";
+import { doc, addDoc, collection, getDocs, setDoc, deleteDoc } from "firebase/firestore";
 import db from '../../firebaseConfig'
 
 let colaborators = {
@@ -45,6 +46,7 @@ const ProjectPage = () => {
 
     const { id } = useParams();
     const location  = useLocation();
+    const history = useHistory();
 
     const [data, setData] = useState([]);
     const deleteConfirmText = `borrar-proyecto`; //Se obtiene el nombre del proyecto de la base de datos y se pone como "borrar-[nombre]""
@@ -83,38 +85,43 @@ const ProjectPage = () => {
     //     setData(data.filter(e =>  e.id != id));
     // }
     React.useEffect(() => {
+        setProjectName(location.state.name)
         const getColaborators = async () =>{
             
 
             const subColRef = collection(db, "projects", doc_name, "colaborators");
-            // odd number of path segments to get a CollectionReference
-
-            // equivalent to:
-            // .collection("collection_name/doc_name/subcollection_name") in v8
-
-            // use getDocs() instead of getDoc() to fetch the collection
 
             const qSnap =await getDocs(subColRef)
 
             qSnap.docs.map(d => setData(prev => [...prev,{name:d.data().name, key:d.id}]))
 
-
-            // const subColRef = collection(db, "proyects",{doc_name} ,'colaborators');
-            // const qSnap = getDocs(subColRef)
-            // console.log(qSnap.docs.map(d =>{console.log(d)} ))
         }
         console.log("colab")
         getColaborators()
     }, [])
 
     const editProject = () => {
+        let data = {id:location.state.id,name:projectName}
+        setDoc(doc(db, 'projects', location.state.key), data, { merge: true});
         setEditModalState(false);
-        const newProjectName = projectName;
+        
         //Hacer el update a la base de datos
 
     }
 
-    const deleteProject = () => {
+    const deleteProject = async () => {
+        const taskDocRef = doc(db, 'projects', location.state.key)
+        console.log("borrar")
+        try{
+            await deleteDoc(taskDocRef).then(()=>{
+                history.replace("/projects");
+            }).catch(()=>{
+                alert("Error al elminar el proyecto")
+            })
+          } catch (err) {
+              console.log(err)
+            alert(err)
+          }
         setConfirmDeleteModalState(false);
         //Se borra de la base de datos
     }
@@ -124,7 +131,7 @@ const ProjectPage = () => {
     return (
         <ProjectPageContainer>
             <HeaderContent>
-                <HeaderTitle className="header_title">[{location.state.name}]</HeaderTitle>
+                <HeaderTitle className="header_title">[{projectName}]</HeaderTitle>
                 <HeaderBtn onClick={openEditModal} className="edit_btn">
                     <EditIcon className="edit_icon"/>
                 </HeaderBtn>
@@ -154,7 +161,8 @@ const ProjectPage = () => {
                         </ColabContent>
                         ) }
                     </ColabsList>
-                    <NewColabBtn>Agregar<NewUserIcon /></NewColabBtn>
+                    <NewColabBtn>Agregar<NewUserIcon />
+                    </NewColabBtn>
                 </ColaboratorsPanel>
             </ProjectContentPanel>
 
@@ -198,7 +206,7 @@ const ProjectPage = () => {
                 padding={'20px'}
             >
                 <Contenido>
-                    <msg>Ingrese "borrar-[nombreProyecto]" para eliminar</msg>
+                    <msg>Ingrese "{projectName}" para eliminar</msg>
                     <InputField 
                         label=""
                         placeholder= "borrar-[nombreProyecto]"
@@ -210,7 +218,7 @@ const ProjectPage = () => {
                     <ContenedorBotones>
                         <Boton2 onClick={closeDeleteModal}>Cancelar</Boton2>
                         <Boton 
-                            disabled={ !(deleteConfirmText === deleteProjectName) }
+                            disabled={ !(deleteProjectName === projectName) }
                             onClick={() => {
                                     closeDeleteModal();
                                     openconfirmDeleteModal();}
@@ -233,8 +241,8 @@ const ProjectPage = () => {
                         <br></br>Esta accion es irreversible.
                     </msg>
                     <ContenedorBotones>
-                        <Boton3 onClick={closeConfirmDeleteModal}>Eliminar</Boton3>
-                        <Boton onClick={deleteProject}>Cancelar</Boton>
+                        <Boton3 onClick={deleteProject}>Eliminar</Boton3>
+                        <Boton onClick={closeConfirmDeleteModal}>Cancelar</Boton>
                     </ContenedorBotones>
                 </Contenido>
             </Modal>

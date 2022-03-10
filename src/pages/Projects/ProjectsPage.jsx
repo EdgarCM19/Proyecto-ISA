@@ -69,9 +69,16 @@ const ProjectsPage = () => {
 
         console.log(projectId)
         console.log(projectName)
+        loadProjects();
         toggleNewProjectModal();
     }
-
+    const loadProjects = async () =>{
+        setData([]);
+        const data = await getDocs(collection(db, 'projects'))
+        console.log(data);
+        data.forEach(element=>{ console.log(element);
+             setData( (prevData)=>[...prevData, {id:element.data().id, name:element.data().name, key:element.id}])})
+    }
     const loggedOut = () => {
         history.replace("/");
     }
