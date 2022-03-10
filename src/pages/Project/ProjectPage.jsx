@@ -64,41 +64,41 @@ const ProjectPage = () => {
     const openDeleteModal = () => setDeleteModalState(true);
     const closeDeleteModal = () => setDeleteModalState(false);
 
+    const openDeleteColab = () => setDeleteColaborateModal(true);
+    const openNewColab = () => setNewColaborateModal(true);
+
     const openconfirmDeleteModal = () => setConfirmDeleteModalState(true);
     const closeConfirmDeleteModal = () => setConfirmDeleteModalState(false);
     //Inputs states
     const [projectName, setProjectName] = useState('');
     const [deleteProjectName, setDeleteProjectName] = useState('');
+    const [deleteColaborateModal, setDeleteColaborateModal] = useState(false);
+    const [newColaborateModal, setNewColaborateModal] = useState(false);
+
+    const [colabMail, setColabMail] = useState('');
+    const [colabName, setColabName] = useState('');
+    const [colabToDelete, setColabToDelete] = useState({});
 
     const handleProjectName = (name) => setProjectName(name);
     const handleDeleteProjectName = (name) => setDeleteProjectName(name);
+    const handleColabMail = (mail) =>  setColabMail(mail);
+    const handleColabName = (name) => setColabName(name)
     const doc_name = location.state.key;
 
-    // const addColab = (id, name) => {
-    //     setData([
-    //         ...data,
-    //         { id: id, name: name}
-    //     ]);
-    // }
-
-    // const deleteColab = (id) => {
-    //     setData(data.filter(e =>  e.id != id));
-    // }
     React.useEffect(() => {
+        
         setProjectName(location.state.name)
-        const getColaborators = async () =>{
-            
-
-            const subColRef = collection(db, "projects", doc_name, "colaborators");
-
-            const qSnap =await getDocs(subColRef)
-
-            qSnap.docs.map(d => setData(prev => [...prev,{name:d.data().name, key:d.id}]))
-
-        }
-        console.log("colab")
-        getColaborators()
+        loadColabs()
     }, [])
+
+    const loadColabs = async () =>{
+        setData([]);
+        const subColRef = collection(db, "projects", doc_name, "colaborators");
+
+        const qSnap =await getDocs(subColRef)
+
+        qSnap.docs.map(d => setData(prev => [...prev,{name:d.data().name, key:d.id}]))
+    }
 
     const editProject = () => {
         let data = {id:location.state.id,name:projectName}
@@ -124,6 +124,46 @@ const ProjectPage = () => {
           }
         setConfirmDeleteModalState(false);
         //Se borra de la base de datos
+    }
+
+    const addColab = async () => {
+        console.log(colabName, colabMail)
+        let userData = {
+            email : colabMail,
+            name: colabName
+        }
+        if(colabName!=='' && colabMail !==''){
+            await addDoc(collection(db, 'projects', location.state.key, 'colaborators'), userData).then(()=>{
+                loadColabs()
+            })
+            setNewColaborateModal(false);
+        }else{
+            alert("Ingrese los datos")
+        }
+        
+        //Se agrega el colaborador
+    }
+
+    const deleteColab = async () => {
+        console.log(colabToDelete)
+        const taskDocRef = doc(db, 'projects', location.state.key, 'colaborators', colabToDelete.key)
+        console.log("borrar")
+        try{
+            await deleteDoc(taskDocRef).then(()=>{
+                loadColabs()
+            }).catch(()=>{
+                alert("Error al elminar el proyecto")
+            })
+          } catch (err) {
+              console.log(err)
+            alert(err)
+          }
+        setDeleteColaborateModal(false);
+    }
+    const deleteColabModal = (colab) =>{
+        console.log(colab)
+        setColabToDelete(colab);
+        openDeleteColab()
     }
 
     const handleColabPanel = () => setColabPanelExpanded(!colabPanelExpanded);
@@ -156,13 +196,12 @@ const ProjectPage = () => {
                     <ColabsList>
                     { data.map( e => 
                         <ColabContent>
-                            <ColabName className="c_name">{e.name} </ColabName>
-                            <DeleteIconC className="delete_iconC"/>
+                            <ColabName className="c_name">{e.name}</ColabName>
+                            <DeleteIconC onClick={()=>deleteColabModal(e) } className="delete_iconC"/>
                         </ColabContent>
                         ) }
                     </ColabsList>
-                    <NewColabBtn>Agregar<NewUserIcon />
-                    </NewColabBtn>
+                    <NewColabBtn onClick={openNewColab}>Agregar<NewUserIcon /></NewColabBtn>
                 </ColaboratorsPanel>
             </ProjectContentPanel>
 
@@ -247,6 +286,61 @@ const ProjectPage = () => {
                 </Contenido>
             </Modal>
 
+ {/* Modal delete colab */}
+            <Modal
+                estado={deleteColaborateModal}
+                cambiarEstado={setDeleteColaborateModal}
+                titulo="Titulo"
+                mostrarHeader={false}
+                mostrarOverlay={true}
+                posicionModal={'center'}
+                padding={'20px'}
+            >
+                <Contenido>
+                    <msg>¿Esta seguro que desea eliminar al colaborador [{colabToDelete.name}]?
+                        <br></br>Esta accion es Permanente.
+                    </msg>
+                    <ContenedorBotones>
+                        <Boton3 onClick={deleteColab}>Eliminar</Boton3>
+                        <Boton onClick={() => setDeleteColaborateModal(false)}>Cancelar</Boton>
+                    </ContenedorBotones>
+                </Contenido>
+            </Modal>
+
+            {/* Modal new colab */}
+            <Modal
+                estado={newColaborateModal}
+                cambiarEstado={setNewColaborateModal}
+                titulo="Titulo"
+                mostrarHeader={false}
+                mostrarOverlay={true}
+                posicionModal={'center'}
+                padding={'20px'}
+            >
+                <Contenido>
+                    <msg>Ingrese los datos del colaborador</msg>
+                    <InputField 
+                        label="Correo electronico"
+                        placeholder="Correo electronico"
+                        inputWidth="90%"
+                        password={false}
+                        value={colabMail}
+                        onChange={handleColabMail}
+                    />
+                    <InputField 
+                        label="Nombre"
+                        placeholder="Nombre"
+                        inputWidth="90%"
+                        password={false}
+                        value={colabName}
+                        onChange={handleColabName}
+                    />
+                    <ContenedorBotones>
+                        <Boton2 onClick={() => setNewColaborateModal(false)}>Cancelar</Boton2>
+                        <Boton onClick={() => addColab()}>Aceptar</Boton>
+                    </ContenedorBotones>
+                </Contenido>
+            </Modal>
 
         </ProjectPageContainer>
     )
