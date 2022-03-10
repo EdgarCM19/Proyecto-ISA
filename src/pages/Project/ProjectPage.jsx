@@ -48,7 +48,7 @@ const fakeDataColabs = [
     { id: 2, name: 'Colaborador 4'},
 ];
 
-const ProjectPage = () => {
+const ProjectPage = (db) => {
 
     const { id } = useParams();
 

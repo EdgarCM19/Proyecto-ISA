@@ -4,10 +4,12 @@ import InputField from "../../components/InputField/InputField";
 import { Button, LoginFromContent, LoginPageContent, Title } from "./LoginPageElements";
 import { useHistory } from "react-router-dom";
 
+import { getAuth, signInWithEmailAndPassword } from "firebase/auth"
+
 const LoginPage = () => {
 
     const history = useHistory();
-
+    const auth = getAuth();
     const [user, setUser] = useState('');
     const [password, setPassword] = useState('');
 
@@ -19,9 +21,24 @@ const LoginPage = () => {
         setPassword(password);
     }
 
-    const loggin = () => {
-        alert(`Usuario: ${user}\nPass:${password}`);
-        history.replace("/projects")
+    const loggin = async () => {
+        console.log(user,password)
+        await  signInWithEmailAndPassword(auth, user, password)
+        .then((userCredential) => {
+            // Signed in
+            // const user = userCredential.user;
+            console.log(userCredential)
+            history.replace("/projects")
+            // ...
+        })
+        .catch((error) => {
+            const errorCode = error.code;
+            console.log(errorCode)
+            const errorMessage = error.message;
+            alert(`Error: ${errorMessage}`);
+  });
+        
+        
     }
 
     return(

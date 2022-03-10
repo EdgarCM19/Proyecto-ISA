@@ -1,6 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useHistory } from "react-router-dom";
 import ProjectFolder from "../../components/ProjectFolder/ProjectFolder";
+
+import { doc, addDoc, collection, getDocs } from "firebase/firestore";
+import db from '../../firebaseConfig'
+
 import { 
     AuxText,
     Button,
@@ -22,6 +26,7 @@ import Modal from "../../components/Modal/Modal";
 import InputField from "../../components/InputField/InputField";
 import {ContenedorBotones, Boton, Boton2, Contenido} from "../../components/Modal/ModalContenidoElements";
 
+
 const fakeData = [
     { id: 0, name: 'Projecto 1'},
     { id: 2, name: 'Projecto 2'},
@@ -33,24 +38,43 @@ const fakeData = [
 
 const ProjectsPage = () => {
 
-    const [data, setData] = useState(fakeData);
+    const [data, setData] = useState([]);
     const [isMenuShow, setMenuShow] = useState(false);
     const [projectName, setProjectName] = useState('');
-    const [newProjectModalShowing, setNewProjectModalState] = useState(false);
+    const [newProjectModalShowing, setNewProjectModalState] = useState(false); 
 
     const toggleNewProjectModal = () => {
         setNewProjectModalState(!newProjectModalShowing);
     }
 
+    useEffect(() => {
+        const getData = async () =>{
+            const data = await getDocs(collection(db, 'projects'))
+            console.log(data);
+            data.forEach(element=>{ setData( (prevData)=>[...prevData, {id:element.data().id, name:element.data().name}])})
+        }
+        getData()
+        
+    }, [])
+
     const handleNewProjectNameInput = (name) => setProjectName(name); 
 
     const history = useHistory();
 
-    const addNewProject = (projectId, projectName) => {
+    const addNewProject = async (projectName) => {
+        let projectId = new Date().getTime()
         setData((prevData) => [
             ...prevData,
             { id: projectId, name: projectName}
         ]);
+        let dataProject = {
+            name: projectName,
+            id: projectId
+        }
+        await addDoc(collection(db, 'projects'), dataProject);
+
+        console.log(projectId)
+        console.log(projectName)
         toggleNewProjectModal();
     }
 
@@ -124,7 +148,7 @@ const ProjectsPage = () => {
                 />
                 <ContenedorBotones>
                     <Boton2 onClick={toggleNewProjectModal}>Cancelar</Boton2>
-                    <Boton onClick={() => addNewProject(0, projectName)}>Crear</Boton>
+                    <Boton onClick={() => addNewProject(projectName)}>Crear</Boton>
                 </ContenedorBotones>
             </Contenido>
         </Modal>
