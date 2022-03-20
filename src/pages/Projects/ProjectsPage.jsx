@@ -72,6 +72,7 @@ const ProjectsPage = () => {
         loadProjects();
         toggleNewProjectModal();
     }
+
     const loadProjects = async () =>{
         setData([]);
         const data = await getDocs(collection(db, 'projects'))
@@ -81,6 +82,7 @@ const ProjectsPage = () => {
     }
     const loggedOut = () => {
         history.replace("/");
+        localStorage.setItem('logged', false);
     }
 
     const toggleMenu = () => {

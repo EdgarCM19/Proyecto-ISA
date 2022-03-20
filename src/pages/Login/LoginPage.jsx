@@ -27,7 +27,8 @@ const LoginPage = () => {
         .then((userCredential) => {
             // Signed in
             // const user = userCredential.user;
-            console.log(userCredential)
+            console.log(userCredential);
+            localStorage.setItem('logged', true);
             history.replace("/projects")
             // ...
         })
@@ -35,10 +36,9 @@ const LoginPage = () => {
             const errorCode = error.code;
             console.log(errorCode)
             const errorMessage = error.message;
-            alert(`Error: ${errorMessage}`);
-  });
-        
-        
+            // alert(`Error: ${errorMessage}`);
+            alert('Credenciales incorrectas');
+        });
     }
 
     return(
