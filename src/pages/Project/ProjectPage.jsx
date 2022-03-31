@@ -21,8 +21,16 @@ import {
     NewColabBtn,
     NewUserIcon,
     ProjectCardsContainer,
+    ProjectCardsHeader,
+    ProjectCardsHeaderButton,
+    ProjectCardsHeaderButtonLink,
+    ProjectCardsHeaderTitle,
     ProjectContentPanel,
     ProjectPageContainer,
+    Tab,
+    TabContentCointainer,
+    TabsContainer,
+    TabsContentPanel,
 } from "./ProjectPageElements";
 
 import Modal from "../../components/Modal/Modal";
@@ -36,11 +44,84 @@ import {
 import InputField from "../../components/InputField/InputField";
 import { doc, addDoc, collection, getDocs, setDoc, deleteDoc } from "firebase/firestore";
 import db from '../../firebaseConfig'
+import UserHistoryMini from "../../components/UserHistoryMini/UserHistoryMini";
+import CRCMini from "../../components/CRCMini/CRCMini";
+import { Link } from "react-router-dom";
+import { CRCFullNewResponsabilitieButtonLink } from "../CRC/CRCFullElements";
+
 
 let colaborators = {
     name:"",
     id:""
 }
+
+const fakeUserHistoryData = [
+    {
+        id: 0,
+        historyName: 'Historia 1',
+        historyNum: 0,
+        priority: 4,
+        time: '2 Semanas',
+        date: '00/00/00'
+    },
+    {
+        id: 1,
+        historyName: 'Historia 2',
+        historyNum: 1,
+        priority: 5,
+        time: '3 dias',
+        date: '00/00/00'
+    },
+    {
+        id: 3,
+        historyName: 'Historia 3',
+        historyNum: 2,
+        priority: 1,
+        time: '5 dias',
+        date: '00/00/00'
+    },
+    {
+        id: 4,
+        historyName: 'Historia 4',
+        historyNum: 2,
+        priority: 1,
+        time: '5 dias',
+        date: '00/00/00'
+    },
+];
+
+const fakeCRCData = [
+    {
+        id: 0,
+        crcName: 'Clase 1',
+        superclases: ['Ingeniero'],
+        subclases: ['colaborador']
+    },
+    {
+        id: 1,
+        crcName: 'Clase 2',
+        superclases: ['Ingeniero'],
+        subclases: ['colaborador']
+    },
+    {
+        id: 2,
+        crcName: 'Clase 3',
+        superclases: ['Ingeniero'],
+        subclases: ['colaborador']
+    },
+    {
+        id: 3,
+        crcName: 'Clase 4',
+        superclases: ['Ingeniero'],
+        subclases: ['colaborador']
+    },
+    {
+        id: 4,
+        crcName: 'Clase 5',
+        superclases: ['Ingeniero'],
+        subclases: ['colaborador']
+    },
+];
 
 const ProjectPage = () => {
 
@@ -85,6 +166,10 @@ const ProjectPage = () => {
     const handleColabName = (name) => setColabName(name)
     const doc_name = location.state.key;
 
+    const [toggleState, setToggleState] = useState(0);
+
+    const toggleTab = (tab) => setToggleState(tab);
+
     React.useEffect(() => {
         
         setProjectName(location.state.name)
@@ -108,6 +193,24 @@ const ProjectPage = () => {
         //Hacer el update a la base de datos
 
     }
+
+    const goToUserHistory = (id) => {
+        console.log('Amonos');
+        history.push({
+        location: `/user-history/${id}`, 
+        state: {
+            id: id,
+            _new: false
+        }
+    })};
+    
+    const goToCRCCard = (id) => history.push({
+        location: `/user-history/${id}`, 
+        state: {
+            id: id,
+            _new: false
+        }
+    });
 
     const deleteProject = async () => {
         const taskDocRef = doc(db, 'projects', location.state.key)
@@ -167,6 +270,8 @@ const ProjectPage = () => {
     }
 
     const handleColabPanel = () => setColabPanelExpanded(!colabPanelExpanded);
+    
+    const newUID = 0;
 
     return (
         <ProjectPageContainer>
@@ -181,11 +286,50 @@ const ProjectPage = () => {
             </HeaderContent>
             <ProjectContentPanel>
                 <ProjectCardsContainer>
-                {/* Tabs y Cards */}
-                    {/* <TabsContainer>
-                        <Tab>Historias de Usuario</Tab>
-                        <Tab>Tarjetas CRC</Tab>
-                    </TabsContainer> */}
+                    <ProjectCardsHeader>
+                        {/* <ProjectCardsHeaderButton>Nueva {toggleState === 1 ? 'historia de usuario' : 'tarjeta CRC'}</ProjectCardsHeaderButton> */}
+                        <ProjectCardsHeaderButtonLink
+                            to={{
+                                pathname: toggleState === 1 ? `/crc-card/${newUID}` : `/user-history/${newUID}`, 
+                                state: { id: newUID, _new: true}}}
+                        >
+                            Nueva {toggleState === 0 ? 'historia de usuario' : 'tarjeta CRC'}
+                        </ProjectCardsHeaderButtonLink>
+                    </ProjectCardsHeader>
+                    <TabsContainer>
+                        <Tab onClick={() => toggleTab(0)} className={ toggleState === 0 ? "active" : ""}>Historias de Usuario</Tab>
+                        <Tab onClick={() => toggleTab(1)} className={ toggleState === 1 ? "active" : ""}>Tarjetas CRC</Tab>
+                    </TabsContainer>
+                    <TabsContentPanel >
+                        <TabContentCointainer
+                            tab={toggleState}
+                            className={toggleState === 0 ? 'active' : ''}
+                        >
+                            {fakeUserHistoryData.map(e => 
+                                <UserHistoryMini
+                                    id={e.id}
+                                    name={e.historyName}
+                                    numHistory={e.historyNum}
+                                    priority={e.priority}
+                                    time={e.time}
+                                    date={e.date}
+                                />
+                            )}
+                        </TabContentCointainer>
+                        <TabContentCointainer
+                            tab={toggleState}
+                            className={toggleState === 1 ? 'active' : ''}
+                        >
+                            { fakeCRCData.map( (e, index) => 
+                                <CRCMini onClick={() => goToCRCCard(e.id)}
+                                    key={index}
+                                    name={e.crcName}
+                                    superClasses={e.superclases}
+                                    subClasses={e.subclases}
+                                />
+                            )}
+                        </TabContentCointainer>
+                    </TabsContentPanel>
                 </ProjectCardsContainer>
                 <ColaboratorsPanel expand={colabPanelExpanded}>
                     <ExpandPanelButton expand={colabPanelExpanded} onClick={handleColabPanel}>

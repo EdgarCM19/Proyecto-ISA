@@ -1,5 +1,6 @@
 import styled from 'styled-components';
 import { FiChevronLeft, FiEdit2, FiTrash, FiUserPlus } from 'react-icons/fi';
+import { Link } from 'react-router-dom';
 
 export const ProjectPageContainer = styled.div`
     width: 100vw;
@@ -78,7 +79,7 @@ export const DeleteIcon = styled(FiTrash)`
 `;
 
 export const ProjectContentPanel = styled.div`
-    /* background-color: blue; */
+    // background-color: blue;
     width: 100%;
     height: 100%;
     display: flex;
@@ -93,13 +94,123 @@ export const ProjectCardsContainer = styled.div`
     height: 100%;
 `;
 
+export const ProjectCardsHeader = styled.div`
+    display: flex;
+    justify-content: end;
+    align-items: center;
+    /* background-color: blue; */
+`;
+
+export const ProjectCardsHeaderButton = styled.button`
+    font-size: 1.25em;
+    color: var(--bg-color);
+    background-color: var(--primary-color);
+    padding: .5em 1em;
+    border: 2px solid transparent;
+    border-radius: .5em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all .3s ease-in-out;
+    margin-right: 1.5em; 
+    margin-top: ${p => p.mt || "0" };
+
+    &:hover {
+        /* transform: scale(1.1); */
+        border: 2px solid var(--primary-color);
+        color: var(--fg-color);
+        background-color: transparent;
+    }
+`;
+
+export const ProjectCardsHeaderButtonLink = styled(Link)`
+    font-size: 1.25em;
+    color: var(--bg-color);
+    background-color: var(--primary-color);
+    padding: .5em 1em;
+    border: 2px solid transparent;
+    border-radius: .5em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all .3s ease-in-out;
+    margin-right: 1.5em; 
+    text-decoration: none;
+    margin-top: ${p => p.mt || "0" };
+
+    &:hover {
+        /* transform: scale(1.1); */
+        border: 2px solid var(--primary-color);
+        color: var(--fg-color);
+        background-color: transparent;
+    }
+`;
+
+export const TabsContainer = styled.div`
+    width: 90%;
+    margin-top: .5em;
+    /* border: 1px solid blue; */
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    width: 100%;
+
+`;
+export const Tab = styled.button`
+    background-color: var(--bg-color);
+    padding: 1em;
+    font-size: 1.5em;
+    font-family: 'Source Code Pro';
+    font-weight: normal;
+    border: none;
+    outline: none;
+    width: 50%;
+    color: var(--fg-color);
+    border-radius: 1em 1em 0 0;
+
+    &.active {
+        background-color: #599895;
+    }
+
+`;
+
+export const TabsContentPanel = styled.div`
+    width: 100%;
+    flex-direction: column;
+    flex: 1;
+    height: 65%;
+    /* max-height: 65%; */
+    /* height: 100%; */
+    /* overflow-y: auto; */
+    
+`;
+
+export const TabContentCointainer = styled.div`
+    width: 100%;
+    height: 100%;
+    display: none;
+    background-color: #A5D8D6;
+    overflow-y: auto;
+    border-radius: ${ p => p.tab === 0 ? 
+        '0 1em 1em 1em' : '1em 0 1em 1em'
+    };
+
+    &.active {
+        display: flex;
+        justify-content: space-around;
+        align-items: flex-start;
+        flex-wrap: wrap;
+    }
+`
+
+
 export const ColaboratorsPanel = styled.div`
     position: relative;
     background-color: var(--primary-color);
     /* border: ${ p => p.expand ? "2px solid var(--fg-color);" : "none" }; */
-    /* width: ${ p => p.expand ? "30%" : "0"}; */
+    width: ${ p => p.expand ? "30%" : "10%"};
     border: 1px solid var(--fg-color);
-    width: 30%;
+    /* width: 30%; */
     transform: ${ p => p.expand ? "translateX(0);" : "translateX(101%)" };
     height: 80%;
     border-radius: .5em 0 0 .5em;
@@ -137,19 +248,7 @@ export const ExpandIcon = styled(FiChevronLeft)`
     height: 2em;
     transition: all .5s ease-in-out;
 `;
-export const TabsContainer = styled.div`
-    width: 95%;
-    border: 1px solid blue;
-    display: flex;
-    align-items: center;
-    justify-content: space-around;
-    width: 100%;
 
-`;
-export const Tab = styled.button`
-background-color: black;
-color: white;
-`;
 
 export const ColabsList = styled.div`
     display: flex;
