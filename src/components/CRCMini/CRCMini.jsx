@@ -12,8 +12,8 @@ const CRCMini = ({ id, name, superClasses, subClasses }) => {
   const history = useHistory();
   const goToCRC = () => {
     console.log('Hola')
-    history.replace({
-      pathname: `/user-history/${id}`, 
+    history.push({
+      pathname: `/crc-card/${id}`, 
       state: {
           id: id,
           _new: false
