@@ -7,7 +7,7 @@ import {
     CRCMiniTitle
 } from './CRCMiniElements';
 
-const CRCMini = ({ id, name, superClasses, subClasses }) => {
+const CRCMini = ({ id, name,fire, superClasses, subClasses, key, doc_name }) => {
 console.log("superClases")
   console.log(superClasses)
   const history = useHistory();
@@ -18,7 +18,9 @@ console.log("superClases")
       pathname: `/crc-card/${id}`, 
       state: {
           id: id,
-          _new: false
+          _new: false,
+          doc_name:doc_name,
+          fire:fire
       }
     });
   };

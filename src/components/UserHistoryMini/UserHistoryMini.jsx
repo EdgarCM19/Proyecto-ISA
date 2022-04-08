@@ -2,15 +2,18 @@ import React from 'react'
 import { useHistory } from 'react-router-dom/';
 import { UserHistoryMiniContainer, UserhistoryMiniInfoText, UserHistoryMiniList, UserHistoryMiniSectionTitle, UserHistoryMiniTitle } from './UserHistoryMiniElements';
 
-const UserHistoryMini = ({ id, name, number, priority, time, date}) => {
+const UserHistoryMini = ({ id,key,fire, name, number, priority, time, date, doc_name}) => {
   
   const history = useHistory();
   const goToUserHistory = () => {
+    console.log(fire, doc_name);
     history.push({
       pathname: `/user-history/${id}`, 
       state: {
           id: id,
-          _new: false
+          _new: false,
+          doc_name:doc_name,
+          fire:fire
       }
     });
   };

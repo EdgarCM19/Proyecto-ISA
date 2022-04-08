@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react'
+import React, { useRef, useState, useEffect } from 'react'
 import { 
     ChipBtn,
     ChipContainer,
@@ -13,11 +13,15 @@ import {
 
 import { FiX } from 'react-icons/fi';
 
-const MultiSelect = ({ options, canEdit, handleSelected}) => {
+const MultiSelect = ({ options, canEdit, handleSelected, value}) => {
 
     const [isOpen , setOpen] = useState(false);
     const [availableOptions, setAvailableOptions] = useState([...options]);
     const [chips, setChips] = useState([]);
+
+    useEffect(()=>{
+        if(value) setChips(value);
+    },[])
 
     const handleSelectChange = e => {
         let values = [...e.target.selectedOptions].map( opt => opt.value);

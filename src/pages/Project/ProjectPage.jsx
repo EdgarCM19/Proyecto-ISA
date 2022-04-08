@@ -76,7 +76,8 @@ const ProjectPage = (props) => {
             try{
                 const subColRef = collection(db, "projects", doc_name, "historyData");
                 const qSnap =await getDocs(subColRef)
-                qSnap.docs.map(d =>{
+                qSnap.docs.map(d => {
+                    console.log("llave", d.id)
                     setUserHistoryData(prev =>
                     [...prev,{
                         id: d.data().id, 
@@ -85,6 +86,7 @@ const ProjectPage = (props) => {
                         priority: d.data().priority,
                         time: new Date(d.data().time).getDate(),
                         date: d.data().date,
+                        fire:d.id,
                         key:d.id}
                 ])})
                 const subColRef2 = collection(db, "projects", doc_name, "CRC");
@@ -96,6 +98,7 @@ const ProjectPage = (props) => {
                         crcName: d.data().crcName,
                         superclases: d.data().selectedSuperClasses,
                         subclases: d.data().selectedSubClasses,
+                        fire:d.id,
                         key:d.id
                     }
                 ])})
@@ -181,12 +184,13 @@ const ProjectPage = (props) => {
         }
     })};
     
-    const goToCRCCard = (id) => history.push({
+    const goToCRCCard = (id,key) => history.push({
         location: `/user-history/${id}`, 
         state: {
             id: id,
             _new: false,
-            doc_name: doc_name
+            doc_name: doc_name,
+            key: key
         }
     });
 
@@ -302,6 +306,8 @@ const ProjectPage = (props) => {
                                     priority={e.priority}
                                     time={e.time}
                                     date={e.date}
+                                    fire={e.fire}
+                                    doc_name={doc_name}
                                 />
                             )}
                         </TabContentCointainer>
@@ -310,11 +316,13 @@ const ProjectPage = (props) => {
                             className={toggleState === 1 ? 'active' : ''}
                         >
                             { CRCData.map( (e, index) => 
-                                <CRCMini onClick={() => goToCRCCard(e.id)}
+                                <CRCMini onClick={() => goToCRCCard(e.id, e.key)}
                                     key={index}
                                     name={e.crcName}
                                     superClasses={e.superclases}
                                     subClasses={e.subclases}
+                                    fire={e.fire}
+                                    doc_name={doc_name}
                                 />
                             )}
                         </TabContentCointainer>

@@ -15,7 +15,7 @@ import {
 } from './CRCFullElements';
 import { FiEdit2, FiTrash, FiCheck, FiSave } from 'react-icons/fi';
 import { useHistory, useLocation } from 'react-router-dom/cjs/react-router-dom.min';
-import {  addDoc, collection, getDocs, deleteDoc } from "firebase/firestore";
+import {  addDoc, collection, getDocs, deleteDoc, doc, where } from "firebase/firestore";
 import db from '../../firebaseConfig'
 
 const fakeDataCRC = [
@@ -32,7 +32,7 @@ const CRCFull = () => {
 
   const location = useLocation();
   const history = useHistory();
-  const {id, _new, doc_name} = location.state;
+  const {id, _new, doc_name, fire} = location.state;
   const [canEdit, setCanEdit] = useState(_new);
   const toggleEditMode = () => setCanEdit(!canEdit);
 
@@ -52,11 +52,31 @@ const CRCFull = () => {
     const [selectedSubClasses, setSelectedSubClasses] = useState([]);
     const [selectedClasses, setSelectedClasses] = useState([]);
 
+    const [responsabilities, setResponsabilities] = useState(fakeDataCRC);   
+
     useEffect(()=>{
       loadClases().then(()=>{
         setLoading(false);
       })
+      console.log(fire, "el fire")
+      if(fire!==null && fire !== undefined){
+        getData()
+    }
     },[])
+  const getData =  async ()=>{
+      let ref = collection(db, 'projects', doc_name, "CRC")
+      const data = await getDocs(ref, where('id', '==', id))
+      data.forEach(res=>{
+          if(res.data().historyNum===id){
+              console.log(res.data().historyNum, id);
+              setResponsabilities(res.data().responsabilities);
+              setSelectedSubClasses(res.data().selectedSubClasses);
+              setSelectedSuperClasses(res.data().selectedSuperClasses);
+              setClassName(res.data().crcName);
+              console.log("entro")
+          }
+      })
+  }
     const loadClases =async()=>{
       setSuperClassesOptions([])
       setSubClassesOptions([])
@@ -93,7 +113,7 @@ const CRCFull = () => {
     
     //Data de las responsabilidades y sus colaboradores mediante
     //un arreglo de objetos
-    const [responsabilities, setResponsabilities] = useState(fakeDataCRC);   
+    
 
     const handleResponsabilitiesName = (index, value) => {
       const temp = [...responsabilities];
@@ -108,9 +128,6 @@ const CRCFull = () => {
         setResponsabilities([...temp]);
     }
 
-    const loadCRC = () => {
-      //Se cargan los datos de la tarjeta CRC mediante el id
-    }
 
     const editCRC = () => {
       //Se actualizan los datos de la tarjeta CRC 
@@ -121,7 +138,7 @@ const CRCFull = () => {
 
       let aux = {
             id: new Date().getTime(), 
-            name: className,
+            crcName: className,
             selectedSuperClasses: selectedSuperClasses, 
             selectedSubClasses: selectedSubClasses,
             responsabilities:responsabilities,
@@ -135,7 +152,10 @@ const CRCFull = () => {
             }
     }
 
-    const deleteCRC = () => {};
+    const deleteCRC = async () => {
+      await deleteDoc(doc(db, 'projects', doc_name, 'CRC', fire));
+        history.goBack();
+    };
 
     const newResponsabilitie = () => {
       // const uid = some_uid_function();
@@ -144,6 +164,8 @@ const CRCFull = () => {
       temp.push({id: id, name: '', collaborators: []});
       setResponsabilities([...temp]);
     }
+
+    
 
     if(loading){
       return (
@@ -169,12 +191,14 @@ const CRCFull = () => {
           <MultiSelect
             canEdit={canEdit}
             options={superClassesOptions}
+            value={selectedSuperClasses}
             handleSelected={handleSelectedSuperClasses}
           />
           <CRCFullSectionTitle>Subclases</CRCFullSectionTitle>
           <MultiSelect
             canEdit={canEdit}
             options={subClassesOptions}
+            value={selectedSubClasses}
             handleSelected={handleSelectedSubClasses}
           />
           <CRCFullResponsabilitiesScrollContainer>
@@ -186,7 +210,7 @@ const CRCFull = () => {
                   onChange={ev => handleResponsabilitiesName(index, ev.target.value)}
                 />
                 <CRCFullResponsabilitesSeparator/>
-                <MultiSelect handleSelected={handleResponsabilitiesCollaborators(index)} canEdit={canEdit} options={colabOptions}/>
+                <MultiSelect handleSelected={handleResponsabilitiesCollaborators(index)} value={e.collaborators} canEdit={canEdit} options={colabOptions}/>
               </CRCFullResponsabiliteContainer>
             )}
           </CRCFullResponsabilitiesScrollContainer>
@@ -201,7 +225,7 @@ const CRCFull = () => {
           <FiEdit2 /> }
           </RoundedButton>
         <RoundedButton onClick={saveCRC} className='save'><FiSave /></RoundedButton>
-        <RoundedButton onClick={deleteCRC} className='delete_btn'><FiTrash /></RoundedButton>
+        {!_new ? <RoundedButton onClick={deleteCRC} className='delete_btn'><FiTrash /></RoundedButton> : ""}
       </CRCFullButtonsContainer>
     </CRCFullPageContainer>
   )
