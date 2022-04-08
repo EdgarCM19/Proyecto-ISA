@@ -1,4 +1,4 @@
-import React from 'react'
+import React, {useEffect, useState} from 'react'
 import { useHistory } from 'react-router-dom';
 import {
     CRCMiniContainer,
@@ -8,8 +8,10 @@ import {
 } from './CRCMiniElements';
 
 const CRCMini = ({ id, name, superClasses, subClasses }) => {
-
+console.log("superClases")
+  console.log(superClasses)
   const history = useHistory();
+  const [superClasesArr, setSuperClasesArr] = useState([])
   const goToCRC = () => {
     console.log('Hola')
     history.push({
@@ -21,13 +23,19 @@ const CRCMini = ({ id, name, superClasses, subClasses }) => {
     });
   };
 
+  useEffect(() => {
+    superClasses.map((res)=>{
+      setSuperClasesArr(prev=>[...prev, res])
+    })
+  }, [])
+  
   return (
       <CRCMiniContainer onClick={goToCRC}>
             <CRCMiniTitle>{name}</CRCMiniTitle>
             <CRCMiniSectionTitle>Superclases:</CRCMiniSectionTitle>
-            <CRCMiniList>{superClasses.join(', ')}</CRCMiniList>
+            <CRCMiniList>{superClasesArr}</CRCMiniList>
             <CRCMiniSectionTitle>Subclases:</CRCMiniSectionTitle>
-            <CRCMiniList>{subClasses.join(', ')}</CRCMiniList>
+            <CRCMiniList>{subClasses}</CRCMiniList>
       </CRCMiniContainer>
   )
 } 

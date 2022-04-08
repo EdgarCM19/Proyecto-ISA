@@ -27,7 +27,6 @@ const MultiSelect = ({ options, canEdit, handleSelected}) => {
     }
 
     const handleRemoveChip = (chipToRemove) => {
-        console.log('soy', chipToRemove)
         const newChips = chips.filter( e =>  e !== chipToRemove);
         setChips([...newChips]);
         handleSelected(newChips);

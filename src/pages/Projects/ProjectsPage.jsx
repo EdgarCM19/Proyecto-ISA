@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useHistory } from "react-router-dom";
 import ProjectFolder from "../../components/ProjectFolder/ProjectFolder";
 
-import { doc, addDoc, collection, getDocs } from "firebase/firestore";
+import { addDoc, collection, getDocs } from "firebase/firestore";
 import db from '../../firebaseConfig'
 
 import { 
@@ -43,8 +43,7 @@ const ProjectsPage = () => {
     useEffect(() => {
         const getData = async () =>{
             const data = await getDocs(collection(db, 'projects'))
-            console.log(data);
-            data.forEach(element=>{ console.log(element);
+            data.forEach(element=>{ 
                  setData( (prevData)=>[...prevData, {id:element.data().id, name:element.data().name, key:element.id}])})
         }
         getData()
@@ -66,9 +65,6 @@ const ProjectsPage = () => {
             id: projectId
         }
         await addDoc(collection(db, 'projects'), dataProject);
-
-        console.log(projectId)
-        console.log(projectName)
         loadProjects();
         toggleNewProjectModal();
     }
@@ -76,8 +72,7 @@ const ProjectsPage = () => {
     const loadProjects = async () =>{
         setData([]);
         const data = await getDocs(collection(db, 'projects'))
-        console.log(data);
-        data.forEach(element=>{ console.log(element);
+        data.forEach(element=>{ 
              setData( (prevData)=>[...prevData, {id:element.data().id, name:element.data().name, key:element.id}])})
     }
     const loggedOut = () => {

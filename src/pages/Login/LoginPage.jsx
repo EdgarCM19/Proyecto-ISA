@@ -22,19 +22,16 @@ const LoginPage = () => {
     }
 
     const loggin = async () => {
-        console.log(user,password)
         await  signInWithEmailAndPassword(auth, user, password)
         .then((userCredential) => {
             // Signed in
             // const user = userCredential.user;
-            console.log(userCredential);
             localStorage.setItem('logged', true);
             history.replace("/projects")
             // ...
         })
         .catch((error) => {
             const errorCode = error.code;
-            console.log(errorCode)
             const errorMessage = error.message;
             // alert(`Error: ${errorMessage}`);
             alert('Credenciales incorrectas');

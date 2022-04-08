@@ -1,5 +1,4 @@
-import React from "react";
-import { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { useHistory } from "react-router-dom";
 
@@ -55,80 +54,58 @@ let colaborators = {
     id:""
 }
 
-const fakeUserHistoryData = [
-    {
-        id: 0,
-        historyName: 'Historia 1',
-        historyNum: 0,
-        priority: 4,
-        time: '2 Semanas',
-        date: '00/00/00'
-    },
-    {
-        id: 1,
-        historyName: 'Historia 2',
-        historyNum: 1,
-        priority: 5,
-        time: '3 dias',
-        date: '00/00/00'
-    },
-    {
-        id: 3,
-        historyName: 'Historia 3',
-        historyNum: 2,
-        priority: 1,
-        time: '5 dias',
-        date: '00/00/00'
-    },
-    {
-        id: 4,
-        historyName: 'Historia 4',
-        historyNum: 2,
-        priority: 1,
-        time: '5 dias',
-        date: '00/00/00'
-    },
-];
 
-const fakeCRCData = [
-    {
-        id: 0,
-        crcName: 'Clase 1',
-        superclases: ['Ingeniero'],
-        subclases: ['colaborador']
-    },
-    {
-        id: 1,
-        crcName: 'Clase 2',
-        superclases: ['Ingeniero'],
-        subclases: ['colaborador']
-    },
-    {
-        id: 2,
-        crcName: 'Clase 3',
-        superclases: ['Ingeniero'],
-        subclases: ['colaborador']
-    },
-    {
-        id: 3,
-        crcName: 'Clase 4',
-        superclases: ['Ingeniero'],
-        subclases: ['colaborador']
-    },
-    {
-        id: 4,
-        crcName: 'Clase 5',
-        superclases: ['Ingeniero'],
-        subclases: ['colaborador']
-    },
-];
 
-const ProjectPage = () => {
+
+
+const ProjectPage = (props) => {
 
     const { id } = useParams();
     const location  = useLocation();
     const history = useHistory();
+    const [CRCData,setCRCData] = useState([]);
 
+    const [userHistoryData,setUserHistoryData] = useState([]);
+    const [loading, setLoading] =useState(true);
+
+    useEffect(()=>{
+        getDataInit().then(setLoading(false))
+    },[])
+    const getDataInit = async() =>{
+        return new Promise(async (resolve, reject)=>{
+            try{
+                const subColRef = collection(db, "projects", doc_name, "historyData");
+                const qSnap =await getDocs(subColRef)
+                qSnap.docs.map(d =>{
+                    setUserHistoryData(prev =>
+                    [...prev,{
+                        id: d.data().id, 
+                        historyName: d.data().historyName, 
+                        historyNum: d.data().historyNum,
+                        priority: d.data().priority,
+                        time: new Date(d.data().time).getDate(),
+                        date: d.data().date,
+                        key:d.id}
+                ])})
+                const subColRef2 = collection(db, "projects", doc_name, "CRC");
+                const qSnap2 =await getDocs(subColRef2)
+                qSnap2.docs.map(d =>{
+                    setCRCData(prev =>
+                    [...prev,{
+                        id: d.data().id, 
+                        crcName: d.data().crcName,
+                        superclases: d.data().selectedSuperClasses,
+                        subclases: d.data().selectedSubClasses,
+                        key:d.id
+                    }
+                ])})
+                resolve(true)
+            }catch(err){
+                reject(err);
+            }
+        })
+        
+    }
     const [data, setData] = useState([]);
     const deleteConfirmText = `borrar-proyecto`; //Se obtiene el nombre del proyecto de la base de datos y se pone como "borrar-[nombre]""
 
@@ -195,12 +172,12 @@ const ProjectPage = () => {
     }
 
     const goToUserHistory = (id) => {
-        console.log('Amonos');
         history.push({
         location: `/user-history/${id}`, 
         state: {
             id: id,
-            _new: false
+            _new: false,
+            doc_name: doc_name
         }
     })};
     
@@ -208,13 +185,13 @@ const ProjectPage = () => {
         location: `/user-history/${id}`, 
         state: {
             id: id,
-            _new: false
+            _new: false,
+            doc_name: doc_name
         }
     });
 
     const deleteProject = async () => {
         const taskDocRef = doc(db, 'projects', location.state.key)
-        console.log("borrar")
         try{
             await deleteDoc(taskDocRef).then(()=>{
                 history.replace("/projects");
@@ -222,7 +199,6 @@ const ProjectPage = () => {
                 alert("Error al elminar el proyecto")
             })
           } catch (err) {
-              console.log(err)
             alert(err)
           }
         setConfirmDeleteModalState(false);
@@ -230,7 +206,6 @@ const ProjectPage = () => {
     }
 
     const addColab = async () => {
-        console.log(colabName, colabMail)
         let userData = {
             email : colabMail,
             name: colabName
@@ -248,9 +223,7 @@ const ProjectPage = () => {
     }
 
     const deleteColab = async () => {
-        console.log(colabToDelete)
         const taskDocRef = doc(db, 'projects', location.state.key, 'colaborators', colabToDelete.key)
-        console.log("borrar")
         try{
             await deleteDoc(taskDocRef).then(()=>{
                 loadColabs()
@@ -258,13 +231,11 @@ const ProjectPage = () => {
                 alert("Error al elminar el proyecto")
             })
           } catch (err) {
-              console.log(err)
             alert(err)
           }
         setDeleteColaborateModal(false);
     }
     const deleteColabModal = (colab) =>{
-        console.log(colab)
         setColabToDelete(colab);
         openDeleteColab()
     }
@@ -272,6 +243,23 @@ const ProjectPage = () => {
     const handleColabPanel = () => setColabPanelExpanded(!colabPanelExpanded);
     
     const newUID = 0;
+    if(loading){
+        return(
+        <ProjectPageContainer>
+            <HeaderContent>
+                <HeaderTitle className="header_title">[{projectName}]</HeaderTitle>
+                <HeaderBtn onClick={openEditModal} className="edit_btn">
+                    <EditIcon className="edit_icon"/>
+                </HeaderBtn>
+                <HeaderBtn onClick={openDeleteModal} className="delete_btn">
+                    <DeleteIcon className="delete_icon"/>
+                </HeaderBtn>
+            </HeaderContent>
+            <ProjectContentPanel>
+                Cargando
+            </ProjectContentPanel>
+        </ProjectPageContainer>)
+    }
 
     return (
         <ProjectPageContainer>
@@ -291,7 +279,7 @@ const ProjectPage = () => {
                         <ProjectCardsHeaderButtonLink
                             to={{
                                 pathname: toggleState === 1 ? `/crc-card/${newUID}` : `/user-history/${newUID}`, 
-                                state: { id: newUID, _new: true}}}
+                                state: { id: newUID, _new: true, doc_name: doc_name}}}
                         >
                             Nueva {toggleState === 0 ? 'historia de usuario' : 'tarjeta CRC'}
                         </ProjectCardsHeaderButtonLink>
@@ -305,9 +293,10 @@ const ProjectPage = () => {
                             tab={toggleState}
                             className={toggleState === 0 ? 'active' : ''}
                         >
-                            {fakeUserHistoryData.map(e => 
+                            {userHistoryData.map(e => 
                                 <UserHistoryMini
-                                    id={e.id}
+                                    id={e.historyNum}
+                                    key={e.key}
                                     name={e.historyName}
                                     numHistory={e.historyNum}
                                     priority={e.priority}
@@ -320,7 +309,7 @@ const ProjectPage = () => {
                             tab={toggleState}
                             className={toggleState === 1 ? 'active' : ''}
                         >
-                            { fakeCRCData.map( (e, index) => 
+                            { CRCData.map( (e, index) => 
                                 <CRCMini onClick={() => goToCRCCard(e.id)}
                                     key={index}
                                     name={e.crcName}

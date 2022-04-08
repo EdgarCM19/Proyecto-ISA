@@ -22,11 +22,11 @@ export const UserHistoryFullContainer = styled.div`
     flex-direction: column;
 `;
 
-export const UserHistoryFullTitle = styled.input.attrs({type: 'text'})`
+export const UserHistoryFullTitle = styled.textarea`
     padding: 0.25em 1.5em;
     background-color: var(--masking);
     position: absolute;
-    top: -12%;
+    top: -17%;
     left: 50%;
     transform: translate(-50%, 0);
     font-family: 'Arvo', sans-serif;
@@ -36,8 +36,9 @@ export const UserHistoryFullTitle = styled.input.attrs({type: 'text'})`
     opacity: 0.9;
     text-align: center;
     border: 1px solid var(--bg-color);
+    border-radius: 14px;
     outline: none;
-
+    margin-bottom: 15px;
     &:disabled {
         border: none;
     }

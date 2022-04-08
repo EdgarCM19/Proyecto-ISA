@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import MultiSelect from '../../components/MultiSelect/MultiSelect';
 import { 
   CRCFullButtonsContainer,
@@ -15,18 +15,15 @@ import {
 } from './CRCFullElements';
 import { FiEdit2, FiTrash, FiCheck, FiSave } from 'react-icons/fi';
 import { useHistory, useLocation } from 'react-router-dom/cjs/react-router-dom.min';
+import {  addDoc, collection, getDocs, deleteDoc } from "firebase/firestore";
+import db from '../../firebaseConfig'
 
 const fakeDataCRC = [
   {
     id: 0, 
     name: 'Responsabilidad 1',
     collaborators: [],
-  },
-  {
-    id: 1, 
-    name: 'Responsabilidad 2',
-    collaborators: ['clase 2'],
-  },
+  }
 ];
 
 
@@ -35,22 +32,61 @@ const CRCFull = () => {
 
   const location = useLocation();
   const history = useHistory();
-  const {id, _new} = location.state;
+  const {id, _new, doc_name} = location.state;
   const [canEdit, setCanEdit] = useState(_new);
   const toggleEditMode = () => setCanEdit(!canEdit);
 
     //Cargar todas las clases registradas, menos la clase que se este modificando/agregando
-    const superClassesOptions = ['superclase 1', 'superclase 2'];
-    const subClassesOptions = ['subclase 1', 'subclase 2'];
-    const colabOptions = ['clase 1', 'clase 2', 'clase 3'];
+    const [superClassesOptions, setSuperClassesOptions] = useState([]);
+    const [subClassesOptions, setSubClassesOptions] = useState([]);
+    const [colabOptions, setcolabOptions] = useState([]);
+    const [loading, setLoading]= useState(true);
+    
     //Creo que pueden ser el mismo objeto ya que siempre son todas las clases menos la actual
 
-
+  
     //El nombre de la tarjeta CRC
-    const [className, setClassName] = useState('Prueba 1');
+    const [className, setClassName] = useState('');
 
     const [selectedSuperClasses, setSelectedSuperClasses] = useState([]);
     const [selectedSubClasses, setSelectedSubClasses] = useState([]);
+    const [selectedClasses, setSelectedClasses] = useState([]);
+
+    useEffect(()=>{
+      loadClases().then(()=>{
+        setLoading(false);
+      })
+    },[])
+    const loadClases =async()=>{
+      setSuperClassesOptions([])
+      setSubClassesOptions([])
+      setcolabOptions([])
+      return new Promise(async (resolve, reject)=>{
+        try{
+          const subColRef = collection(db, "superClases");
+          const qSnap =await getDocs(subColRef)
+          qSnap.docs.map(d =>{
+              setSuperClassesOptions(prev =>
+              [...prev, d.data().name ])})
+          const subColRef2 = collection(db, "subClases");
+          const qSnap2 =await getDocs(subColRef2)
+          qSnap2.docs.map(d =>{
+              setSubClassesOptions(prev =>
+              [...prev, d.data().name
+          ])})
+          const subColRef3 = collection(db, "subClases");
+          const qSnap3 =await getDocs(subColRef3)
+          qSnap3.docs.map(d =>{ 
+              setcolabOptions(prev =>
+              [...prev,d.data().name])})
+          resolve(true)
+        }catch(err){
+          reject(err);
+        }
+       
+      })
+      
+    }
 
     const handleSelectedSuperClasses = (selected) => setSelectedSuperClasses([...selected]);
     const handleSelectedSubClasses = (selected) => setSelectedSubClasses([...selected]);
@@ -81,20 +117,42 @@ const CRCFull = () => {
       toggleEditMode();
     }
 
-    const saveCRC = () => {
-      history.goBack();
+    const saveCRC = async () => {
+
+      let aux = {
+            id: new Date().getTime(), 
+            name: className,
+            selectedSuperClasses: selectedSuperClasses, 
+            selectedSubClasses: selectedSubClasses,
+            responsabilities:responsabilities,
+        }
+        if( selectedSuperClasses !== [] &&   selectedSubClasses !== [] && responsabilities !== []){
+                await addDoc(collection(db, 'projects', doc_name, 'CRC'), aux).then(()=>{
+                })
+              history.goBack();
+            }else{
+                alert("Existen campos vacios");
+            }
     }
 
     const deleteCRC = () => {};
 
     const newResponsabilitie = () => {
       // const uid = some_uid_function();
-      console.log('Si')
       const id = responsabilities.length;
       const temp = [...responsabilities];
       temp.push({id: id, name: '', collaborators: []});
-      console.table(temp);
       setResponsabilities([...temp]);
+    }
+
+    if(loading){
+      return (
+        <CRCFullPageContainer>
+          <CRCFullContainer>
+          Loading
+          </CRCFullContainer>
+        </CRCFullPageContainer>
+      )
     }
 
   return (
@@ -104,6 +162,7 @@ const CRCFull = () => {
             disabled={!canEdit}
             canEdit={canEdit}
             value={className}
+            placeholder={"Nombre"}
             onChange={e => setClassName(e.target.value)}
           />
           <CRCFullSectionTitle>Superclases</CRCFullSectionTitle>
