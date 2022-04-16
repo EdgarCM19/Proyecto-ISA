@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { FiChevronLeft, FiEdit2, FiTrash, FiUserPlus } from 'react-icons/fi';
+import { FiChevronLeft, FiEdit2, FiTrash, FiUserPlus, FiArrowLeft } from 'react-icons/fi';
 import { Link } from 'react-router-dom';
 
 export const ProjectPageContainer = styled.div`
@@ -178,11 +178,8 @@ export const TabsContentPanel = styled.div`
     width: 100%;
     flex-direction: column;
     flex: 1;
-    height: 65%;
-    /* max-height: 65%; */
-    /* height: 100%; */
-    /* overflow-y: auto; */
-    
+    height: 85%;
+    /* -------------------------- */
 `;
 
 export const TabContentCointainer = styled.div`
@@ -338,4 +335,10 @@ export const NewColabBtn = styled.button`
 export const NewUserIcon = styled(FiUserPlus)`
     width: 1.25em;
     height: 1.25em;
+`
+
+export const BackArrowIcon = styled(FiArrowLeft)`
+    width: 1.25em;
+    height: 1.25em;
+    color: var(--fg-color);
 `

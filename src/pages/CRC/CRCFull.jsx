@@ -30,6 +30,8 @@ const fakeDataCRC = [
 
 const CRCFull = () => {
 
+  const usertype = localStorage.getItem('user-type');
+
   const location = useLocation();
   const history = useHistory();
   const {id, _new, doc_name, fire} = location.state;
@@ -218,6 +220,8 @@ const CRCFull = () => {
           {/* <CRCFullNewResponsabilitieButton onClick={() => localStorage.setItem('test', JSON.stringify(responsabilities))}>Guardar</CRCFullNewResponsabilitieButton> */}
       </CRCFullContainer>
       <CRCFullButtonsContainer>
+        { usertype === 'L' ? 
+        <>
         <RoundedButton onClick={editCRC} className='edit_btn' active={canEdit}>
           { _new ?
             <FiCheck />
@@ -226,6 +230,9 @@ const CRCFull = () => {
           </RoundedButton>
         <RoundedButton onClick={saveCRC} className='save'><FiSave /></RoundedButton>
         {!_new ? <RoundedButton onClick={deleteCRC} className='delete_btn'><FiTrash /></RoundedButton> : ""}
+        </> : 
+        <RoundedButton onClick={saveCRC} className='edit_btn'><FiCheck /></RoundedButton>
+        }
       </CRCFullButtonsContainer>
     </CRCFullPageContainer>
   )

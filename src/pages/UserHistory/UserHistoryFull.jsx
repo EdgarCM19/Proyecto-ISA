@@ -24,6 +24,8 @@ import { getDatabase } from "firebase/database";
 
 const UserHistoryFull = () => {
 
+    const usertype = localStorage.getItem('user-type');
+
     const history = useHistory();
     const location = useLocation();
     const {id, _new, doc_name, fire} = location.state
@@ -143,6 +145,8 @@ const UserHistoryFull = () => {
             </UserHistoryFullContainer>
 
             <UserHistoryFullButtonsContainer>
+                { usertype === 'L' ?
+                <>
                 <RoundedButton onClick={editUserHistory} className='edit_btn' active={canEdit}>
                 { _new ?
                     <FiCheck />
@@ -151,6 +155,9 @@ const UserHistoryFull = () => {
                 </RoundedButton>
                 <RoundedButton onClick={saveUserHistory} className='save'><FiSave /></RoundedButton>
                 { !_new ? <RoundedButton onClick={deleteUserHistory} className='delete_btn'><FiTrash /></RoundedButton> : ""}
+                </> : 
+                <RoundedButton onClick={saveUserHistory} className='edit_btn' active={canEdit}><FiCheck /></RoundedButton>
+                }
             </UserHistoryFullButtonsContainer>
         </UserHistoryFullPage>
    );

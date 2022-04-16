@@ -31,6 +31,8 @@ import {ContenedorBotones, Boton, Boton2, Contenido} from "../../components/Moda
 
 const ProjectsPage = () => {
 
+    const usertype = localStorage.getItem('user-type') || 'C';
+
     const [data, setData] = useState([]);
     const [isMenuShow, setMenuShow] = useState(false);
     const [projectName, setProjectName] = useState('');
@@ -94,13 +96,15 @@ const ProjectsPage = () => {
                 <UserIcon onClick={toggleMenu}/>
                 { isMenuShow && (
                 <UserMenu>
-                    <Button>Configuracion</Button>
+                    {/* <Button>Configuracion</Button> */}
                     <Button onClick={loggedOut}>Cerrar Sesion</Button>
                 </UserMenu>
                 ) }
             </ProjectPageHeader>
             <ButtonContainer>
+                { usertype === 'L' && (
                 <Button onClick={toggleNewProjectModal} mr="5em">Nuevo proyecto<FolderIcon/></Button>
+                )}
             </ButtonContainer>
             <ProjectsSection>
                 { data.length === 0 ? (

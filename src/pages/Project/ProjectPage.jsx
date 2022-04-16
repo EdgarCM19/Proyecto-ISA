@@ -4,6 +4,7 @@ import { useHistory } from "react-router-dom";
 
 import { useParams } from "react-router-dom";
 import { 
+    BackArrowIcon,
     ColabContent,
     ColabName,
     ColaboratorsPanel,
@@ -48,17 +49,16 @@ import CRCMini from "../../components/CRCMini/CRCMini";
 import { Link } from "react-router-dom";
 import { CRCFullNewResponsabilitieButtonLink } from "../CRC/CRCFullElements";
 
+import { FiArrowLeft } from 'react-icons/fi';
 
 let colaborators = {
     name:"",
     id:""
 }
 
-
-
-
-
 const ProjectPage = (props) => {
+
+    const usertype = localStorage.getItem('user-type') || 'C';
 
     const { id } = useParams();
     const location  = useLocation();
@@ -169,9 +169,6 @@ const ProjectPage = (props) => {
         let data = {id:location.state.id,name:projectName}
         setDoc(doc(db, 'projects', location.state.key), data, { merge: true});
         setEditModalState(false);
-        
-        //Hacer el update a la base de datos
-
     }
 
     const goToUserHistory = (id) => {
@@ -268,18 +265,24 @@ const ProjectPage = (props) => {
     return (
         <ProjectPageContainer>
             <HeaderContent>
-                <HeaderTitle className="header_title">[{projectName}]</HeaderTitle>
+                <HeaderBtn onClick={() => history.goBack()} className="edit_btn"><BackArrowIcon/></HeaderBtn>
+                <HeaderTitle className="header_title">{projectName}</HeaderTitle>
+                { usertype === 'L' && (
+                    <>
                 <HeaderBtn onClick={openEditModal} className="edit_btn">
                     <EditIcon className="edit_icon"/>
                 </HeaderBtn>
                 <HeaderBtn onClick={openDeleteModal} className="delete_btn">
                     <DeleteIcon className="delete_icon"/>
                 </HeaderBtn>
+                </>
+                )}
             </HeaderContent>
             <ProjectContentPanel>
                 <ProjectCardsContainer>
                     <ProjectCardsHeader>
                         {/* <ProjectCardsHeaderButton>Nueva {toggleState === 1 ? 'historia de usuario' : 'tarjeta CRC'}</ProjectCardsHeaderButton> */}
+                        { usertype === 'L' && (
                         <ProjectCardsHeaderButtonLink
                             to={{
                                 pathname: toggleState === 1 ? `/crc-card/${newUID}` : `/user-history/${newUID}`, 
@@ -287,6 +290,7 @@ const ProjectPage = (props) => {
                         >
                             Nueva {toggleState === 0 ? 'historia de usuario' : 'tarjeta CRC'}
                         </ProjectCardsHeaderButtonLink>
+                        )}
                     </ProjectCardsHeader>
                     <TabsContainer>
                         <Tab onClick={() => toggleTab(0)} className={ toggleState === 0 ? "active" : ""}>Historias de Usuario</Tab>
@@ -328,6 +332,8 @@ const ProjectPage = (props) => {
                         </TabContentCointainer>
                     </TabsContentPanel>
                 </ProjectCardsContainer>
+
+                { usertype === 'L' && (
                 <ColaboratorsPanel expand={colabPanelExpanded}>
                     <ExpandPanelButton expand={colabPanelExpanded} onClick={handleColabPanel}>
                         <ExpandIcon expand={colabPanelExpanded}/>
@@ -344,6 +350,7 @@ const ProjectPage = (props) => {
                     </ColabsList>
                     <NewColabBtn onClick={openNewColab}>Agregar<NewUserIcon /></NewColabBtn>
                 </ColaboratorsPanel>
+                )}
             </ProjectContentPanel>
 
 

@@ -14,7 +14,7 @@ const ProjectFolder = ( { props }) => {
     const history = useHistory();
 
     const openProject = () => {
-        history.replace(`/projects/${props.id}`, props);
+        history.push(`/projects/${props.id}`, props);
     }
     return (
         <ProjectContent onClick={ () => console.log(props.name)}>

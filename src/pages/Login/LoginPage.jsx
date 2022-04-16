@@ -24,16 +24,15 @@ const LoginPage = () => {
     const loggin = async () => {
         await  signInWithEmailAndPassword(auth, user, password)
         .then((userCredential) => {
-            // Signed in
-            // const user = userCredential.user;
             localStorage.setItem('logged', true);
-            history.replace("/projects")
-            // ...
+            //Aqui se verifica con la base de datos para ver si quien esta ingresando tiene rol de ingeniero o de colaborador
+            let usertype = 'C'; // O 'C'
+            localStorage.setItem('user-type', usertype);
+            history.push("/projects");
         })
         .catch((error) => {
             const errorCode = error.code;
             const errorMessage = error.message;
-            // alert(`Error: ${errorMessage}`);
             alert('Credenciales incorrectas');
         });
     }

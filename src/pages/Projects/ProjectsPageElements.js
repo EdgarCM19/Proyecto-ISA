@@ -65,7 +65,8 @@ export const Button = styled.button`
     transition: all .3s ease-in-out;
     margin-right: ${p => p.mr || "0" }; 
     margin-top: ${p => p.mt || "0" };
-
+    border: 2px solid transparent;
+        
     &:hover {
         /* transform: scale(1.1); */
         border: 2px solid var(--primary-color);
