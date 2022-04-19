@@ -26,7 +26,7 @@ const LoginPage = () => {
         .then((userCredential) => {
             localStorage.setItem('logged', true);
             //Aqui se verifica con la base de datos para ver si quien esta ingresando tiene rol de ingeniero o de colaborador
-            let usertype = 'C'; // O 'C'
+            let usertype = 'L'; // O 'C'
             localStorage.setItem('user-type', usertype);
             history.push("/projects");
         })

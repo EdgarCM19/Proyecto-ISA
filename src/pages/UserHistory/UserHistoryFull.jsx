@@ -14,6 +14,16 @@ import {
     UserHistoryFullSelectOption,
     UserHistoryFullTitle
 } from "./UserHistoryFullElements";
+import Modal from "../../components/Modal/Modal";
+import {
+    ContenedorBotones,
+    Boton,
+    Boton2,
+    Boton3,
+    Contenido
+} from "../../components/Modal/ModalContenidoElements";
+import InputField from "../../components/InputField/InputField";
+
 import { FiEdit2, FiTrash, FiCheck, FiSave} from 'react-icons/fi';
 import { useLocation } from "react-router-dom";
 import { useHistory } from "react-router-dom";
@@ -32,6 +42,8 @@ const UserHistoryFull = () => {
 
     const [canEdit, setcanEdit] = useState(_new);
 
+    const deleteConfirmHistory = `borrar-historia`; //Se obtiene el nombre de la historia de la base de datos y se pone como "borrar-[nombre]""
+    
     const [title, setTitle] = useState('');
     const [priority, setPriority] = useState(0);
     const [time, setTime] = useState(0);
@@ -41,6 +53,20 @@ const UserHistoryFull = () => {
     const [observations, setObservations] = useState('');
     const [date, setDate] = useState('');
 
+    // Modal states
+    const [deleteModalState, setDeleteModalState] = useState(false);
+    const [confirmDeleteModalState, setConfirmDeleteModalState] = useState(false);
+    //Inputs states
+    const [historyName, setHistoryName] = useState('');
+    const [deleteHistoryName, setDeleteHistoryName] = useState('');
+
+    
+    const openDeleteModal = () => setDeleteModalState(true);
+    const closeDeleteModal = () => setDeleteModalState(false);
+
+    const openconfirmDeleteModal = () => setConfirmDeleteModalState(true);
+    const closeConfirmDeleteModal = () => setConfirmDeleteModalState(false);
+
     const handleTitle = (title) => {setTitle(title.target.value)};
     const handleHistoryNumber = (histnum) => setHistoryNumber(histnum.target.value);
     const handlePriority = (priority) => setPriority(priority.target.value);
@@ -48,12 +74,14 @@ const UserHistoryFull = () => {
     const handleTimeOption = (option) => setTimeOption(option);
     const handleDescription = (description) => setDescription(description.target.value);
     const handleObservations = (observations) => setObservations(observations.target.value);
+    const handleDeleteHistoryName = (name) => setDeleteHistoryName(name);
 
     const editUserHistory = () => { setcanEdit(!canEdit)};
     const deleteUserHistory = async  () => {
         await deleteDoc(doc(db, 'projects', doc_name, 'historyData', fire));
         history.goBack();
     };
+
     const saveUserHistory = async () => {
         let aux = {
             id: new Date().getTime(), 
@@ -154,11 +182,63 @@ const UserHistoryFull = () => {
                 <FiEdit2 /> }
                 </RoundedButton>
                 <RoundedButton onClick={saveUserHistory} className='save'><FiSave /></RoundedButton>
-                { !_new ? <RoundedButton onClick={deleteUserHistory} className='delete_btn'><FiTrash /></RoundedButton> : ""}
+                { !_new ? <RoundedButton onClick={openDeleteModal} className='delete_btn'><FiTrash /></RoundedButton> : ""}
                 </> : 
                 <RoundedButton onClick={saveUserHistory} className='edit_btn' active={canEdit}><FiCheck /></RoundedButton>
                 }
             </UserHistoryFullButtonsContainer>
+            {/* Modal delete */}
+            <Modal
+                estado={deleteModalState}
+                cambiarEstado={setDeleteModalState}
+                titulo="Titulo"
+                mostrarHeader={false}
+                mostrarOverlay={true}
+                posicionModal={'center'}
+                padding={'20px'}
+            >
+                <Contenido>
+                    <msg>Ingrese "borrar-{title}" para eliminar</msg>
+                    <InputField 
+                        label=""
+                        placeholder= {"borrar-"+title}
+                        inputWidth="90%"
+                        password={false}
+                        value={deleteHistoryName}
+                        onChange={handleDeleteHistoryName}
+                    />
+                    <ContenedorBotones>
+                        <Boton2 onClick={closeDeleteModal}>Cancelar</Boton2>
+                        <Boton 
+                            disabled={ !(deleteHistoryName === "borrar-"+title) }
+                            onClick={() => {
+                                    closeDeleteModal();
+                                    openconfirmDeleteModal();}
+                        }>Eliminar</Boton>
+                    </ContenedorBotones>
+                </Contenido>
+            </Modal>
+
+            <Modal
+                estado={confirmDeleteModalState}
+                cambiarEstado={setConfirmDeleteModalState}
+                titulo="Titulo"
+                mostrarHeader={false}
+                mostrarOverlay={true}
+                posicionModal={'center'}
+                padding={'20px'}
+            >
+                <Contenido>
+                    <msg>¿Esta seguro que desea eliminar [Historia]?
+                        <br></br>Esta accion es irreversible.
+                    </msg>
+                    <ContenedorBotones>
+                        <Boton3 onClick={deleteUserHistory}>Eliminar</Boton3>
+                        <Boton onClick={closeConfirmDeleteModal}>Cancelar</Boton>
+                    </ContenedorBotones>
+                </Contenido>
+            </Modal>
+            
         </UserHistoryFullPage>
    );
 }

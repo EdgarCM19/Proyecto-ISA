@@ -13,6 +13,15 @@ import {
   CRCFullTitle,
   RoundedButton 
 } from './CRCFullElements';
+import Modal from "../../components/Modal/Modal";
+import {
+    ContenedorBotones,
+    Boton,
+    Boton2,
+    Boton3,
+    Contenido
+} from "../../components/Modal/ModalContenidoElements";
+import InputField from "../../components/InputField/InputField";
 import { FiEdit2, FiTrash, FiCheck, FiSave } from 'react-icons/fi';
 import { useHistory, useLocation } from 'react-router-dom/cjs/react-router-dom.min';
 import {  addDoc, collection, getDocs, deleteDoc, doc, where } from "firebase/firestore";
@@ -38,6 +47,9 @@ const CRCFull = () => {
   const [canEdit, setCanEdit] = useState(_new);
   const toggleEditMode = () => setCanEdit(!canEdit);
 
+  const deleteConfirmCRC = `borrar-tarjeta`; //Se obtiene el nombre de la tarjeta CRC de la base de datos y se pone como "borrar-[nombre]""
+
+
     //Cargar todas las clases registradas, menos la clase que se este modificando/agregando
     const [superClassesOptions, setSuperClassesOptions] = useState([]);
     const [subClassesOptions, setSubClassesOptions] = useState([]);
@@ -47,6 +59,20 @@ const CRCFull = () => {
     //Creo que pueden ser el mismo objeto ya que siempre son todas las clases menos la actual
 
   
+    // Modal states
+    const [deleteModalState, setDeleteModalState] = useState(false);
+    const [confirmDeleteModalState, setConfirmDeleteModalState] = useState(false);
+    //Inputs states
+    const [crcName, setCrcName] = useState('');
+    const [deleteCrcName, setDeleteCrcName] = useState('');
+
+    
+    const openDeleteModal = () => setDeleteModalState(true);
+    const closeDeleteModal = () => setDeleteModalState(false);
+
+    const openconfirmDeleteModal = () => setConfirmDeleteModalState(true);
+    const closeConfirmDeleteModal = () => setConfirmDeleteModalState(false);
+
     //El nombre de la tarjeta CRC
     const [className, setClassName] = useState('');
 
@@ -112,6 +138,7 @@ const CRCFull = () => {
 
     const handleSelectedSuperClasses = (selected) => setSelectedSuperClasses([...selected]);
     const handleSelectedSubClasses = (selected) => setSelectedSubClasses([...selected]);
+    const handleDeleteCrcName = (name) => setDeleteCrcName(name);
     
     //Data de las responsabilidades y sus colaboradores mediante
     //un arreglo de objetos
@@ -229,11 +256,62 @@ const CRCFull = () => {
           <FiEdit2 /> }
           </RoundedButton>
         <RoundedButton onClick={saveCRC} className='save'><FiSave /></RoundedButton>
-        {!_new ? <RoundedButton onClick={deleteCRC} className='delete_btn'><FiTrash /></RoundedButton> : ""}
+        {!_new ? <RoundedButton onClick={openDeleteModal} className='delete_btn'><FiTrash /></RoundedButton> : ""}
         </> : 
         <RoundedButton onClick={saveCRC} className='edit_btn'><FiCheck /></RoundedButton>
         }
       </CRCFullButtonsContainer>
+      {/* Modal delete */}
+      <Modal
+                estado={deleteModalState}
+                cambiarEstado={setDeleteModalState}
+                titulo="Titulo"
+                mostrarHeader={false}
+                mostrarOverlay={true}
+                posicionModal={'center'}
+                padding={'20px'}
+            >
+                <Contenido>
+                    <msg>Ingrese "borrar-{className}" para eliminar</msg>
+                    <InputField 
+                        label=""
+                        placeholder= {"borrar-"+className}
+                        inputWidth="90%"
+                        password={false}
+                        value={deleteCrcName}
+                        onChange={handleDeleteCrcName}
+                    />
+                    <ContenedorBotones>
+                        <Boton2 onClick={closeDeleteModal}>Cancelar</Boton2>
+                        <Boton 
+                            disabled={ !(deleteCrcName === "borrar-"+className) }
+                            onClick={() => {
+                                    closeDeleteModal();
+                                    openconfirmDeleteModal();}
+                        }>Eliminar</Boton>
+                    </ContenedorBotones>
+                </Contenido>
+            </Modal>
+
+            <Modal
+                estado={confirmDeleteModalState}
+                cambiarEstado={setConfirmDeleteModalState}
+                titulo="Titulo"
+                mostrarHeader={false}
+                mostrarOverlay={true}
+                posicionModal={'center'}
+                padding={'20px'}
+            >
+                <Contenido>
+                    <msg>¿Esta seguro que desea eliminar [Tarjeta Crc]?
+                        <br></br>Esta accion es irreversible.
+                    </msg>
+                    <ContenedorBotones>
+                        <Boton3 onClick={deleteCRC}>Eliminar</Boton3>
+                        <Boton onClick={closeConfirmDeleteModal}>Cancelar</Boton>
+                    </ContenedorBotones>
+                </Contenido>
+            </Modal>
     </CRCFullPageContainer>
   )
 }
