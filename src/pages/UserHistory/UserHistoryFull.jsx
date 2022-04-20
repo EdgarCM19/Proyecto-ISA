@@ -31,8 +31,11 @@ import { useHistory } from "react-router-dom";
 import { addDoc, collection, getDocs, where, doc, updateDoc, deleteDoc } from "firebase/firestore";
 import db from '../../firebaseConfig'
 import { getDatabase } from "firebase/database";
+import MultiSelect from "../../components/MultiSelect/MultiSelect";
 
 const UserHistoryFull = () => {
+
+    const projectCollabs = ['Colab 1', 'Colab 2', 'Colab 3', 'Colab 4'];
 
     const usertype = localStorage.getItem('user-type');
 
@@ -52,6 +55,7 @@ const UserHistoryFull = () => {
     const [description, setDescription] = useState('');
     const [observations, setObservations] = useState('');
     const [date, setDate] = useState('');
+    const [selectedProjectColabs, setSelectedProjectCollabs] = useState([]);
 
     // Modal states
     const [deleteModalState, setDeleteModalState] = useState(false);
@@ -75,6 +79,7 @@ const UserHistoryFull = () => {
     const handleDescription = (description) => setDescription(description.target.value);
     const handleObservations = (observations) => setObservations(observations.target.value);
     const handleDeleteHistoryName = (name) => setDeleteHistoryName(name);
+    const handleSelectedProjectCollabs= (selected) => setSelectedProjectCollabs([...selected]);
 
     const editUserHistory = () => { setcanEdit(!canEdit)};
     const deleteUserHistory = async  () => {
@@ -143,14 +148,15 @@ const UserHistoryFull = () => {
         })
     }
 
-    //Se hace la peticion de la historia de usuario mediante el ID y se obtienen los datos
-
     return (
         <UserHistoryFullPage>
             <UserHistoryFullContainer>
                 <UserHistoryFullTitle disabled={!canEdit}  placeholder={"Nombre"} onChange={handleTitle} value={title}/>
                 <UserHistoryFullInfoContainer>
-                    <UserHistoryFullInfoText>#: <UserHistoryFullInfoInput disabled={!canEdit} style={{width:'30px'}} onChange={handleHistoryNumber} value={historyNumber}/></UserHistoryFullInfoText>
+                    <UserHistoryFullInfoItem>
+                        <UserHistoryFullInfoText>#: </UserHistoryFullInfoText>
+                        <UserHistoryFullInfoInput disabled={!canEdit} onChange={handleHistoryNumber} value={historyNumber}/>
+                    </UserHistoryFullInfoItem>
                     <UserHistoryFullInfoItem>
                         <UserHistoryFullInfoText>Prioridad:</UserHistoryFullInfoText>
                         <UserHistoryFullInfoInput disabled={!canEdit} onChange={handlePriority} value={priority}/>
@@ -183,6 +189,15 @@ const UserHistoryFull = () => {
                 </RoundedButton>
                 <RoundedButton onClick={saveUserHistory} className='save'><FiSave /></RoundedButton>
                 { !_new ? <RoundedButton onClick={openDeleteModal} className='delete_btn'><FiTrash /></RoundedButton> : ""}
+                <MultiSelect
+                    canEdit={canEdit}
+                    options={projectCollabs}
+                    value={selectedProjectColabs}
+                    handleSelected={handleSelectedProjectCollabs}
+                    reverse={true}
+                    placeholder="Colaboradores:"
+                    max={2}
+                    />
                 </> : 
                 <RoundedButton onClick={saveUserHistory} className='edit_btn' active={canEdit}><FiCheck /></RoundedButton>
                 }

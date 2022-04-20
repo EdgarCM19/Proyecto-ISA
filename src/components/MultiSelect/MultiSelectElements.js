@@ -11,7 +11,7 @@ export const MultiSelectContainer = styled.div`
 export const MultiSelectInput = styled.div`
     display: flex;
     align-items: center;
-    border: ${p => p.canEdit ? "1px solid var(--bg-color)" : "1px solid transparent"};
+    border: ${p => p.canEdit ? "1px solid var(--fg-color)" : "1px solid transparent"};
     border-radius: .5em;
     justify-content: space-between;
     /* width: 95%; */
@@ -34,6 +34,7 @@ export const MultiSelectIcon = styled(FiChevronDown)`
 `
 
 export const OpenButton = styled.button`
+    transform: ${p => p.reverse ? "rotate(180deg)" : "rotate(0)"};
     display: ${p => p.canEdit? 'flex' : 'none'};
     justify-content: center;
     align-items: center;
@@ -41,13 +42,16 @@ export const OpenButton = styled.button`
     border: none;
     outline: none;
     background-color: transparent;
-    color: var(--bg-color);
+    color: ${p => !p.reverse ? "var(--bg-color)" : "var(--fg-color)"};
     /* height: 2em; */
     /* padding: 1em; */
     /* width: 2em; */
 `
 
 export const MultiSelectSelect = styled.select`
+    transform: ${p => p.reverse ? "translate(0, -100%)" : "none"};
+    top: ${p => p.reverse ? "0" : "none"};
+    color: var(--fg-color);
     position: absolute;
     z-index: 999;
     border-radius: 0 0 .5em .5em;
@@ -146,3 +150,10 @@ export const ChipBtn = styled.button`
     /* padding: .25em; */
     margin-left: .5em;
 `;
+
+export const MultiSelectPlaceholder = styled.span`
+    font-family: 'Source Code Pro', sans-serif;
+    font-size: 1em;
+    font-weight: normal;
+    color: var(--fg-color);
+`

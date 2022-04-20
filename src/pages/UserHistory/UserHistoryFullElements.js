@@ -22,11 +22,11 @@ export const UserHistoryFullContainer = styled.div`
     flex-direction: column;
 `;
 
-export const UserHistoryFullTitle = styled.textarea`
+export const UserHistoryFullTitle = styled.input.attrs({type: 'input'})`
     padding: 0.25em 1.5em;
     background-color: var(--masking);
     position: absolute;
-    top: -17%;
+    top: -8%;
     left: 50%;
     transform: translate(-50%, 0);
     font-family: 'Arvo', sans-serif;
@@ -36,11 +36,10 @@ export const UserHistoryFullTitle = styled.textarea`
     opacity: 0.9;
     text-align: center;
     border: 1px solid var(--bg-color);
-    border-radius: 14px;
     outline: none;
-    margin-bottom: 15px;
+    resize: none;
     &:disabled {
-        border: none;
+        border: 1px solid transparent;
     }
 
     &:focus {
@@ -87,6 +86,8 @@ export const UserHistoryFullInfoInput = styled.input.attrs({type: 'number'})`
     font-family: 'Source Sans Pro', sans-serif;
     font-size: 1.5em;
     font-weight: normal;
+    width: 3em;
+    border: 1px solid transparent;
     /* display: block; */
 
     &:disabled {
@@ -169,7 +170,7 @@ export const UserHistoryFullButtonsContainer = styled.div`
     /* flex-direction: column; */
     justify-content: center;
     align-items: center;
-    width: 10%;
+    width: 40%;
     /* background-color: red; */
 `
 

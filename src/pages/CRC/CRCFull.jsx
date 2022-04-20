@@ -55,6 +55,8 @@ const CRCFull = () => {
     const [subClassesOptions, setSubClassesOptions] = useState([]);
     const [colabOptions, setcolabOptions] = useState([]);
     const [loading, setLoading]= useState(true);
+
+    const projectCollabs = ['Colab 1', 'Colab 2', 'Colab 3', 'Colab 4'];
     
     //Creo que pueden ser el mismo objeto ya que siempre son todas las clases menos la actual
 
@@ -79,6 +81,7 @@ const CRCFull = () => {
     const [selectedSuperClasses, setSelectedSuperClasses] = useState([]);
     const [selectedSubClasses, setSelectedSubClasses] = useState([]);
     const [selectedClasses, setSelectedClasses] = useState([]);
+    const [selectedProjectColabs, setSelectedProjectCollabs] = useState([]);
 
     const [responsabilities, setResponsabilities] = useState(fakeDataCRC);   
 
@@ -138,6 +141,7 @@ const CRCFull = () => {
 
     const handleSelectedSuperClasses = (selected) => setSelectedSuperClasses([...selected]);
     const handleSelectedSubClasses = (selected) => setSelectedSubClasses([...selected]);
+    const handleSelectedProjectCollabs= (selected) => setSelectedProjectCollabs([...selected]);
     const handleDeleteCrcName = (name) => setDeleteCrcName(name);
     
     //Data de las responsabilidades y sus colaboradores mediante
@@ -193,8 +197,6 @@ const CRCFull = () => {
       temp.push({id: id, name: '', collaborators: []});
       setResponsabilities([...temp]);
     }
-
-    
 
     if(loading){
       return (
@@ -257,6 +259,16 @@ const CRCFull = () => {
           </RoundedButton>
         <RoundedButton onClick={saveCRC} className='save'><FiSave /></RoundedButton>
         {!_new ? <RoundedButton onClick={openDeleteModal} className='delete_btn'><FiTrash /></RoundedButton> : ""}
+        {/* ------------------------------ */}
+        <MultiSelect 
+          canEdit={canEdit}
+          options={projectCollabs}
+          value={selectedProjectColabs}
+          handleSelected={handleSelectedProjectCollabs}
+          reverse={true}
+          placeholder="Colaboradores:"
+          max={2}
+        />
         </> : 
         <RoundedButton onClick={saveCRC} className='edit_btn'><FiCheck /></RoundedButton>
         }

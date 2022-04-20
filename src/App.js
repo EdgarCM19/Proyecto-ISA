@@ -10,8 +10,16 @@ import TestPage from "./pages/Test";
 import UserHistoryFull from "./pages/UserHistory/UserHistoryFull";
 
 //To do:
-// [ ] Select para historia de usuario entre dias y semanas.
-// [ ] Input para prioridad y nombre de historia de usuario.
+// [ ] Que los proyectos de otros ingenieros no salgan en la cuenta de otro
+// [ ] Cargar la lista de colaboradores dados de alta en el proyecto como opciones para el select de colabs en las historias de usuario y las CRC
+// [ ] Sustituir "[Usuario]" por el nombre del usuario
+// [ ] Checar que a veces en las tarjetas CRC se duplican las tarjetas y/o cambian su titulo al mismo 
+// [ ] Asignar y cambiar en el login el tipo se usuario mediante el sessionStorage (ahorita esta en local pero hay que cambiarlo a session) y recuperarlo en 
+//      - Projectos
+//      - Projecto individual
+//      - Tarjeta CRC
+//      - Historias de usuario
+// Igual cambiar la parte de "logged" de local a session
 
 
 function App() {
