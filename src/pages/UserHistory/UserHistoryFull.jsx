@@ -35,7 +35,6 @@ import MultiSelect from "../../components/MultiSelect/MultiSelect";
 
 const UserHistoryFull = () => {
 
-    const projectCollabs = ['Colab 1', 'Colab 2', 'Colab 3', 'Colab 4'];
 
     const usertype = localStorage.getItem('user-type');
 
@@ -55,7 +54,9 @@ const UserHistoryFull = () => {
     const [description, setDescription] = useState('');
     const [observations, setObservations] = useState('');
     const [date, setDate] = useState('');
+    const [projectCollabs, setProjectCollabs] = useState([]);
     const [selectedProjectColabs, setSelectedProjectCollabs] = useState([]);
+    const [colabs, setColabs] = useState([]);
 
     // Modal states
     const [deleteModalState, setDeleteModalState] = useState(false);
@@ -63,6 +64,7 @@ const UserHistoryFull = () => {
     //Inputs states
     const [historyName, setHistoryName] = useState('');
     const [deleteHistoryName, setDeleteHistoryName] = useState('');
+    const [loading, setLoading] = useState(true);
 
     
     const openDeleteModal = () => setDeleteModalState(true);
@@ -88,6 +90,12 @@ const UserHistoryFull = () => {
     };
 
     const saveUserHistory = async () => {
+        let selectedAux = []
+        selectedProjectColabs.forEach(element=>{
+            let res = colabs.find(co=> co.name === element)
+            if(!!res) selectedAux.push(res)
+        })
+
         let aux = {
             id: new Date().getTime(), 
             historyName: title, 
@@ -97,6 +105,7 @@ const UserHistoryFull = () => {
             priority: priority,
             time: time,
             timeOption: timeOption,
+            collabs: selectedAux,
             date: date !== '' ? date : new Date().getUTCDay()+"/"+new Date().getUTCMonth()+"/"+new Date().getUTCFullYear(),
         }
         if( title !== '' &&   description !== '' && observations !== '' &&historyNumber !== 0  &&
@@ -114,6 +123,7 @@ const UserHistoryFull = () => {
                         historyNum: historyNumber,
                         priority: priority,
                         time: time,
+                        collabs: selectedAux,
                         timeOption: timeOption
                     });
                 }
@@ -134,7 +144,6 @@ const UserHistoryFull = () => {
         const data = await getDocs(ref, where('historyNum', '==', parseInt(id)))
         data.forEach(res=>{
             if(res.data().historyNum===id){
-                console.log(res.data().historyNum, id);
                 setTitle(res.data().historyName);
                 setPriority(res.data().priority);
                 setTime(res.data().time);
@@ -143,11 +152,21 @@ const UserHistoryFull = () => {
                 setDescription(res.data().description);
                 setObservations(res.data().observations);
                 setDate(res.data().date);
-                console.log("entro")
+                if(res.data().collabs){
+                    res.data().collabs.forEach((element)=>{
+                        setSelectedProjectCollabs((prev)=>[...prev, element.name]);
+                    })
+                }
             }
         })
+        const dataCol = await getDocs(collection(db, 'projects', doc_name, "colaborators"))
+        dataCol.forEach(element=>{
+            setProjectCollabs( (prevData)=>[...prevData, element.data().name])
+            setColabs((prevData) => [...prevData, {name: element.data().name, id: element.data().uid}])
+        })
+        setLoading(false);
     }
-
+    if(loading) return( null );
     return (
         <UserHistoryFullPage>
             <UserHistoryFullContainer>

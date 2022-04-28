@@ -6,7 +6,6 @@ const UserHistoryMini = ({ id,key,fire, name, number, priority, time, date, doc_
   
   const history = useHistory();
   const goToUserHistory = () => {
-    console.log(fire, doc_name);
     history.push({
       pathname: `/user-history/${id}`, 
       state: {

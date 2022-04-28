@@ -8,12 +8,9 @@ import {
 } from './CRCMiniElements';
 
 const CRCMini = ({ id, name,fire, superClasses, subClasses, key, doc_name }) => {
-console.log("superClases")
-  console.log(superClasses)
   const history = useHistory();
   const [superClasesArr, setSuperClasesArr] = useState([])
   const goToCRC = () => {
-    console.log('Hola')
     history.push({
       pathname: `/crc-card/${id}`, 
       state: {

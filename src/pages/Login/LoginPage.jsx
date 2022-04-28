@@ -3,6 +3,8 @@ import { useState } from "react";
 import InputField from "../../components/InputField/InputField";
 import { Button, LoginFromContent, LoginPageContent, Title } from "./LoginPageElements";
 import { useHistory } from "react-router-dom";
+import { getDocs, collection, query, where, deleteDoc } from "firebase/firestore";
+import db from '../../firebaseConfig'
 
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth"
 
@@ -23,11 +25,21 @@ const LoginPage = () => {
 
     const loggin = async () => {
         await  signInWithEmailAndPassword(auth, user, password)
-        .then((userCredential) => {
-            localStorage.setItem('logged', true);
-            //Aqui se verifica con la base de datos para ver si quien esta ingresando tiene rol de ingeniero o de colaborador
-            let usertype = 'L'; // O 'C'
-            localStorage.setItem('user-type', usertype);
+        .then(async (userCredential) => {
+            let ref = collection(db, "users" )
+            try{
+                const q = query(ref, where('uid', '==' , userCredential.user.uid));
+                const user = await getDocs(q);
+                user.docs.map((res)=>{
+                    localStorage.setItem('uid', userCredential.user.uid)
+                    localStorage.setItem('user-type', res.data().usertype);
+                    localStorage.setItem('name', res.data().name)
+                    localStorage.setItem('logged', true);
+                    return 0;
+                })
+            } catch(err){
+            }
+        
             history.push("/projects");
         })
         .catch((error) => {

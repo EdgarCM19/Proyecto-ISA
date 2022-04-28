@@ -42,14 +42,11 @@ import {
     Contenido
 } from "../../components/Modal/ModalContenidoElements";
 import InputField from "../../components/InputField/InputField";
-import { doc, addDoc, collection, getDocs, setDoc, deleteDoc } from "firebase/firestore";
+import { doc, addDoc, collection, getDocs, setDoc, deleteDoc, query, where } from "firebase/firestore";
 import db from '../../firebaseConfig'
 import UserHistoryMini from "../../components/UserHistoryMini/UserHistoryMini";
 import CRCMini from "../../components/CRCMini/CRCMini";
-import { Link } from "react-router-dom";
-import { CRCFullNewResponsabilitieButtonLink } from "../CRC/CRCFullElements";
-
-import { FiArrowLeft } from 'react-icons/fi';
+import { getAuth, createUserWithEmailAndPassword } from "firebase/auth"
 
 let colaborators = {
     name:"",
@@ -59,6 +56,7 @@ let colaborators = {
 const ProjectPage = (props) => {
 
     const usertype = localStorage.getItem('user-type') || 'C';
+    const uid = localStorage.getItem('uid');
 
     const { id } = useParams();
     const location  = useLocation();
@@ -74,34 +72,71 @@ const ProjectPage = (props) => {
     const getDataInit = async() =>{
         return new Promise(async (resolve, reject)=>{
             try{
+                setUserHistoryData([])
+                setCRCData([])
                 const subColRef = collection(db, "projects", doc_name, "historyData");
                 const qSnap =await getDocs(subColRef)
                 qSnap.docs.map(d => {
-                    console.log("llave", d.id)
-                    setUserHistoryData(prev =>
-                    [...prev,{
-                        id: d.data().id, 
-                        historyName: d.data().historyName, 
-                        historyNum: d.data().historyNum,
-                        priority: d.data().priority,
-                        time: new Date(d.data().time).getDate(),
-                        date: d.data().date,
-                        fire:d.id,
-                        key:d.id}
-                ])})
+                    if(usertype === 'C'){
+                        let aux = d.data().collabs.find((res)=>res.id === uid);
+                        if(!!aux){
+                            setUserHistoryData(prev =>
+                                [...prev,{
+                                    id: d.data().id, 
+                                    historyName: d.data().historyName, 
+                                    historyNum: d.data().historyNum,
+                                    priority: d.data().priority,
+                                    time: new Date(d.data().time).getDate(),
+                                    date: d.data().date,
+                                    fire:d.id,
+                                    key:d.id}
+                                ])
+                        }
+                    }else{
+                        setUserHistoryData(prev =>
+                        [...prev,{
+                            id: d.data().id, 
+                            historyName: d.data().historyName, 
+                            historyNum: d.data().historyNum,
+                            priority: d.data().priority,
+                            time: new Date(d.data().time).getDate(),
+                            date: d.data().date,
+                            fire:d.id,
+                            key:d.id}
+                        ])
+                    }
+                })
                 const subColRef2 = collection(db, "projects", doc_name, "CRC");
                 const qSnap2 =await getDocs(subColRef2)
                 qSnap2.docs.map(d =>{
-                    setCRCData(prev =>
-                    [...prev,{
-                        id: d.data().id, 
-                        crcName: d.data().crcName,
-                        superclases: d.data().selectedSuperClasses,
-                        subclases: d.data().selectedSubClasses,
-                        fire:d.id,
-                        key:d.id
+                    if(usertype === 'C'){
+                        let aux = d.data().collabs.find((res)=>res.id === uid);
+                        if(!!aux){
+                            setCRCData(prev =>
+                                [...prev,{
+                                    id: d.data().id, 
+                                    crcName: d.data().crcName,
+                                    superclases: d.data().selectedSuperClasses,
+                                    subclases: d.data().selectedSubClasses,
+                                    fire:d.id,
+                                    key:d.id
+                                    }
+                                ])
+                        }
+                    }else{
+                        setCRCData(prev =>
+                            [...prev,{
+                                id: d.data().id, 
+                                crcName: d.data().crcName,
+                                superclases: d.data().selectedSuperClasses,
+                                subclases: d.data().selectedSubClasses,
+                                fire:d.id,
+                                key:d.id
+                                }
+                            ])
                     }
-                ])})
+                    
+                })
                 resolve(true)
             }catch(err){
                 reject(err);
@@ -205,17 +240,55 @@ const ProjectPage = (props) => {
         setConfirmDeleteModalState(false);
         //Se borra de la base de datos
     }
-
+//aqui se agrega
     const addColab = async () => {
+
         let userData = {
             email : colabMail,
-            name: colabName
+            name: colabName,
+            usertype: 'C'
         }
+
         if(colabName!=='' && colabMail !==''){
-            await addDoc(collection(db, 'projects', location.state.key, 'colaborators'), userData).then(()=>{
-                loadColabs()
+            const auth = getAuth();
+
+            createUserWithEmailAndPassword(auth, colabMail, '123456')
+            .then(async (userCredential) => {
+                // Signed in
+                const user = userCredential.user;
+                userData.uid = user.uid;
+                await setDoc(doc(db, 'users', user.uid), {
+                    email: colabMail,
+                    name: colabName,
+                    usertype: 'C',
+                    uid: user.uid}).then(async ()=>{
+                        await addDoc(collection(db,'users', user.uid, 'project'), {key:location.state.key});
+                        await addDoc(collection(db, 'projects', location.state.key, 'colaborators'), userData).then(()=>{
+                            loadColabs()
+                        })
+                        setNewColaborateModal(false)
+                    })
+                // ...
             })
-            setNewColaborateModal(false);
+            .catch(async (error) => {
+                if(error.message === 'Firebase: Error (auth/email-already-in-use).'){
+                    let ref = collection(db, "users" )
+                    const q = query(ref, where('email', '==' , colabMail));
+                    const res = await getDocs(q);
+                    res.docs.map(async (res)=>{
+                        userData.uid = res.id;
+                        await addDoc(collection(db,'users', res.id, 'project'), {key:location.state.key});
+                        await addDoc(collection(db, 'projects', location.state.key, 'colaborators'), userData).then(()=>{
+                            loadColabs()
+                        })
+                        setNewColaborateModal(false);
+                        return 0;
+                    })
+                    await addDoc(collection(db,'users', res.id, 'project'), location.state.key);
+                }
+            });
+
+           
         }else{
             alert("Ingrese los datos")
         }
