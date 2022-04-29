@@ -57,6 +57,7 @@ const ProjectsPage = () => {
             { id: projectId, name: projectName}
         ]);
         let dataProject = {
+            uid: uid,
             name: projectName,
             id: projectId
         }
