@@ -111,6 +111,7 @@ const ProjectPage = (props) => {
                 qSnap2.docs.map(d =>{
                     if(usertype === 'C'){
                         let aux = d.data().collabs.find((res)=>res.id === uid);
+                        console.log(aux)
                         if(!!aux){
                             setCRCData(prev =>
                                 [...prev,{

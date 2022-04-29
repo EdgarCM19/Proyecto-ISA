@@ -82,7 +82,9 @@ const ProjectsPage = () => {
                 console.log(element.data().key)
                 const data = await getDoc(doc(db, 'projects', element.data().key))
                 console.log(data.data())
-                setData( (prevData)=>[...prevData, {id:data.data().id, name:data.data().name, key:data.id}])
+                if(!!data.data()){
+                    setData( (prevData)=>[...prevData, {id:data.data().id, name:data.data().name, key:data.id}])
+                }
             })
         }
     }
