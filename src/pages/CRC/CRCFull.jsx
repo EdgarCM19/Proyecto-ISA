@@ -75,8 +75,10 @@ const CRCFull = () => {
     //El nombre de la tarjeta CRC
     const [className, setClassName] = useState('');
 
-    const [selectedSuperClasses, setSelectedSuperClasses] = useState([]);
-    const [selectedSubClasses, setSelectedSubClasses] = useState([]);
+    const [selectedSuperClasses, setSelectedSuperClasses] = useState('');
+    const [selectedSubClasses, setSelectedSubClasses] = useState('');
+
+
     const [selectedClasses, setSelectedClasses] = useState([]);
     const [projectCollabs, setProjectCollabs] = useState([]);
     const [selectedProjectColabs, setSelectedProjectCollabs] = useState([]);
@@ -140,8 +142,8 @@ const CRCFull = () => {
       
     }
 
-    const handleSelectedSuperClasses = (selected) => setSelectedSuperClasses([...selected]);
-    const handleSelectedSubClasses = (selected) => setSelectedSubClasses([...selected]);
+    const handleSelectedSuperClasses = (selected) => setSelectedSuperClasses(selected);
+    const handleSelectedSubClasses = (selected) => setSelectedSubClasses(selected);
     const handleSelectedProjectCollabs= (selected) => setSelectedProjectCollabs([...selected]);
     const handleDeleteCrcName = (name) => setDeleteCrcName(name);
     
@@ -152,6 +154,12 @@ const CRCFull = () => {
     const handleResponsabilitiesName = (index, value) => {
       const temp = [...responsabilities];
       temp[index].name = value;
+      setResponsabilities([...temp]);
+    }
+    
+    const handleResponsabilitiesCollabs = (index, value) => {
+      const temp = [...responsabilities];
+      temp[index].collaborators = value;
       setResponsabilities([...temp]);
     }
 
@@ -239,18 +247,28 @@ const CRCFull = () => {
             onChange={e => setClassName(e.target.value)}
           />
           <CRCFullSectionTitle>Superclases</CRCFullSectionTitle>
-          <MultiSelect
+          {/* <MultiSelect
             canEdit={canEdit}
             options={superClassesOptions}
             value={selectedSuperClasses}
             handleSelected={handleSelectedSuperClasses}
+          /> */}
+          <CRCFullResponsabilitieName
+            disabled={!canEdit}
+            value={selectedSuperClasses}
+            onChange={ev => handleSelectedSuperClasses(ev.target.value)}
           />
           <CRCFullSectionTitle>Subclases</CRCFullSectionTitle>
-          <MultiSelect
+          {/* <MultiSelect
             canEdit={canEdit}
             options={subClassesOptions}
             value={selectedSubClasses}
             handleSelected={handleSelectedSubClasses}
+          /> */}
+          <CRCFullResponsabilitieName
+            disabled={!canEdit}
+            value={selectedSubClasses}
+            onChange={ev => handleSelectedSubClasses(ev.target.value)}
           />
           <CRCFullResponsabilitiesScrollContainer>
             {responsabilities.map( (e, index) =>
@@ -261,7 +279,12 @@ const CRCFull = () => {
                   onChange={ev => handleResponsabilitiesName(index, ev.target.value)}
                 />
                 <CRCFullResponsabilitesSeparator/>
-                <MultiSelect handleSelected={handleResponsabilitiesCollaborators(index)} value={e.collaborators} canEdit={canEdit} options={colabOptions}/>
+                {/* <MultiSelect handleSelected={handleResponsabilitiesCollaborators(index)} value={e.collaborators} canEdit={canEdit} options={colabOptions}/> */}
+                 <CRCFullResponsabilitieName
+                  disabled={!canEdit}
+                  value={e.collaborators}
+                  onChange={ev => handleResponsabilitiesCollabs(index, ev.target.value)}
+                />
               </CRCFullResponsabiliteContainer>
             )}
           </CRCFullResponsabilitiesScrollContainer>
