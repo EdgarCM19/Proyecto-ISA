@@ -182,8 +182,6 @@ const CRCFull = () => {
             let res = colabs.find(co=> co.name === element)
             if(!!res) selectedAux.push(res)
         })
-
-
       let aux = {
             id: new Date().getTime(), 
             crcName: className,
@@ -192,7 +190,7 @@ const CRCFull = () => {
             responsabilities:responsabilities,
             collabs: selectedAux,
         }
-        if( selectedSuperClasses !== [] &&   selectedSubClasses !== [] && responsabilities !== []){
+        if( selectedSuperClasses !== '' &&   selectedSubClasses !== '' && responsabilities !== ''){
           if(_new){
               await addDoc(collection(db, 'projects', doc_name, 'CRC'), aux).then(()=>{})
           }else{
@@ -208,9 +206,9 @@ const CRCFull = () => {
             });
           }
           history.goBack();
-            }else{
-                alert("Existen campos vacios");
-            }
+          }else{
+            alert("Existen campos vacios");
+          }
     }
 
     const deleteCRC = async () => {

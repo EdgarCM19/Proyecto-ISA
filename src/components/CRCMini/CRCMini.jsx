@@ -9,7 +9,6 @@ import {
 
 const CRCMini = ({ id, name,fire, superClasses, subClasses, key, doc_name }) => {
   const history = useHistory();
-  const [superClasesArr, setSuperClasesArr] = useState([])
   const goToCRC = () => {
     history.push({
       pathname: `/crc-card/${id}`, 
@@ -21,18 +20,12 @@ const CRCMini = ({ id, name,fire, superClasses, subClasses, key, doc_name }) => 
       }
     });
   };
-
-  useEffect(() => {
-    superClasses.map((res)=>{
-      setSuperClasesArr(prev=>[...prev, res])
-    })
-  }, [])
   
   return (
       <CRCMiniContainer onClick={goToCRC}>
             <CRCMiniTitle>{name}</CRCMiniTitle>
             <CRCMiniSectionTitle>Superclases:</CRCMiniSectionTitle>
-            <CRCMiniList>{superClasesArr}</CRCMiniList>
+            <CRCMiniList>{superClasses}</CRCMiniList>
             <CRCMiniSectionTitle>Subclases:</CRCMiniSectionTitle>
             <CRCMiniList>{subClasses}</CRCMiniList>
       </CRCMiniContainer>
