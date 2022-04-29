@@ -138,6 +138,7 @@ const UserHistoryFull = () => {
         if(fire!==null && fire !== undefined){
             getData()
         }
+        setLoading(false);
     }, [])
     const getData =  async ()=>{
         let ref = collection(db, 'projects', doc_name, "historyData")
